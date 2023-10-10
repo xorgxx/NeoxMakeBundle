@@ -1,0 +1,69 @@
+    <link rel="stylesheet" href="{{ asset("bundles/neoxtable/css/bs-datatable.css") }}"/>
+    <script type="text/javascript" src="{{ asset("bundles/neoxtable/js/bs-datatable.js") }}"></script>
+
+{#    <link href="https://cdn.datatables.net/v/bs5/dt-1.13.4/datatables.min.css" rel="stylesheet"/>#}
+{#    <script src="https://cdn.datatables.net/v/bs5/dt-1.13.4/datatables.min.js"></script>#}
+{#    <script type="text/javascript" src="https://cdn.datatables.net/plug-ins/1.13.4/sorting/natural.js"></script>#}
+    <script>
+
+            $('#datatable1').dataTable({
+                // language: {
+                //     url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/fr-FR.json',
+                // },
+                // columnDefsy: [
+                //     { type: 'natural-asc', targets: 0 }
+                // ]
+                language: {
+                    "emptyTable": "Aucune donnée disponible dans le tableau",
+                    "loadingRecords": "Chargement...",
+                    "processing": "Traitement...",
+                    "stateRestore": {
+                        "removeSubmit": "Supprimer",
+                        "creationModal": {
+                            "button": "Créer",
+                            "order": "Tri",
+                            "paging": "Pagination",
+                            "scroller": "Position du défilement",
+                            "search": "Recherche",
+                            "select": "Sélection",
+                            "columns": {
+                                "search": "Recherche par colonne",
+                                "visible": "Visibilité des colonnes"
+                            },
+                            "name": "Nom :",
+                            "searchBuilder": "Recherche avancée",
+                            "title": "Créer un nouvel état",
+                            "toggleLabel": "Inclus :"
+                        },
+                        "renameButton": "Renommer",
+                        "duplicateError": "Il existe déjà un état avec ce nom.",
+                        "emptyError": "Le nom ne peut pas être vide.",
+                        "emptyStates": "Aucun état sauvegardé",
+                        "removeConfirm": "Voulez vous vraiment supprimer %s ?",
+                        "removeError": "Échec de la suppression de l'état.",
+                        "removeJoiner": "et",
+                        "removeTitle": "Supprimer l'état",
+                        "renameLabel": "Nouveau nom pour %s :",
+                        "renameTitle": "Renommer l'état"
+                    },
+                    "info": "Affichage de _START_ à _END_ sur _TOTAL_ entrées",
+                    "infoEmpty": "Affichage de 0 à 0 sur 0 entrées",
+                    "infoFiltered": "(filtrées depuis un total de _MAX_ entrées)",
+                    "lengthMenu": "Afficher _MENU_ entrées",
+                    "paginate": {
+                        "first": "Première",
+                        "last": "Dernière",
+                        "next": "Suivante",
+                        "previous": "Précédente"
+                    },
+                    "zeroRecords": "Aucune entrée correspondante trouvée",
+                    "aria": {
+                        "sortAscending": " : activer pour trier la colonne par ordre croissant",
+                        "sortDescending": " : activer pour trier la colonne par ordre décroissant"
+                    },
+                    "infoThousands": " ",
+                    "search": "Rechercher :",
+                    "thousands": " "
+                }
+            });
+    </script>

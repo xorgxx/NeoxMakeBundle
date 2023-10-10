@@ -1,0 +1,16 @@
+{# success.stream.html.twig #}
+
+{# <turbo-stream action="remove" target="{{ target }}"> #}
+{#    <template> #}
+
+{#    </template> #}
+{# </turbo-stream> #}
+<turbo-stream action="replace" target="neoxTable">
+    <template>
+        <link rel="stylesheet" href="{{ asset('build/canvas/css/components/bs-switches.css') }}"/>
+        <link rel="stylesheet" href="{{ asset('build/canvas/css/components/radio-checkbox.css') }}"/>
+        <script type="text/javascript" src="{{ asset('build/canvas/js/components/bs-switches.js') }}"></script>
+        {{ include('Partial/Inc-FlashMsg.html.twig') }}
+        {{ render(controller('App\\Controller\\Admin\\'~domaine~'\\crudController::index')) }}
+    </template>
+</turbo-stream>
