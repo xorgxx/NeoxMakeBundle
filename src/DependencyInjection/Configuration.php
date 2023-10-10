@@ -24,17 +24,23 @@ final class Configuration implements ConfigurationInterface
         $treeBuilder = new TreeBuilder('neox_make');
         /** @var ArrayNodeDefinition $rootNode */
         $rootNode = $treeBuilder->getRootNode();
-
+        
         $rootNode
+            ->addDefaultsIfNotSet()
             ->children()
-                ->scalarNode('path_js_bs-datatable')
-                    ->defaultValue("build/canvas/js/components/bs-datatable.js")
-                    ->info('Path to JS file bs-datatable.js. (bootstrap5)')
+                ->arrayNode('table')
+                    ->children()
+                        ->scalarNode('path_js_bs-datatable')
+                            ->defaultValue("build/canvas/js/components/bs-datatable.js")
+                            ->info('Path to JS file bs-datatable.js. (bootstrap5)')
+                        ->end()
+                        ->scalarNode('path_css_bs-datatable')
+                            ->defaultValue("build/canvas/css/components/bs-datatable.css")
+                            ->info('Path to CSS file bs-datatable.css. (bootstrap5)')
+                        ->end()
+                    ->end()
                 ->end()
-                ->scalarNode('path_css_bs-datatable')
-                    ->defaultValue("build/canvas/css/components/bs-datatable.css")
-                    ->info('Path to CSS file bs-datatable.css. (bootstrap5)')
-                ->end()
+            ->end()
         ;
 
         return $treeBuilder;

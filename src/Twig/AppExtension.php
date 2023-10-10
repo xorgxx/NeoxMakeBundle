@@ -5,9 +5,6 @@ namespace NeoxTable\NeoxTableBundle\Twig;
 use DateTime;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Twig\Environment;
-use Twig\Error\LoaderError;
-use Twig\Error\RuntimeError;
-use Twig\Error\SyntaxError;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
@@ -23,7 +20,7 @@ class AppExtension extends AbstractExtension
      */
     private ParameterBagInterface $parameterBag;
     /**
-     * @var \Twig\Environment
+     * @var Environment
      */
     private Environment $twig;
 
