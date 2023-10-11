@@ -45,8 +45,6 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Csrf\CsrfTokenManager;
 use Symfony\Component\Validator\Validation;
 
-
-
 /**
  * @author Sadicov Vladimir <sadikoff@gmail.com>
  */
@@ -55,7 +53,8 @@ final class MakeNeoxCrud extends AbstractMaker
     private Inflector $inflector;
     private string $controllerClassName;
     private bool $generateTests = false;
-
+    private bool $generateTranslator = false;
+    
     private const neox_table_crud_path = "neox/table";
 
     public function __construct(private DoctrineHelper $doctrineHelper, private FormTypeRenderer $formTypeRenderer)
@@ -77,7 +76,7 @@ final class MakeNeoxCrud extends AbstractMaker
     {
         $command
             ->addArgument('entity-class', InputArgument::OPTIONAL, sprintf('The class name of the entity to create --> <fg=red>NeoxTable !!</> <-- CRUD (e.g. <fg=yellow>%s</>)', Str::asClassName(Str::getRandomTerm())))
-            ->setHelp(file_get_contents(__DIR__ . '/Resources/help/MakeCrud.txt'));
+            ->setHelp(file_get_contents(__DIR__ . '/../Resources/help/MakeCrud.txt'));
 
         $inputConfig->setArgumentAsNonInteractive('entity-class');
     }
@@ -98,13 +97,15 @@ final class MakeNeoxCrud extends AbstractMaker
         }
 
         $defaultControllerClass = Str::asClassName(sprintf('%s Controller', $input->getArgument('entity-class')));
-
+        $nameClass              = $input->getArgument('entity-class');
         $this->controllerClassName = $io->ask(
             sprintf('Choose a name for your controller class (e.g. <fg=yellow>%s</>)', $defaultControllerClass),
             $defaultControllerClass
         );
-
-        $this->generateTests = $io->confirm('Do you want to generate tests for the controller?. [Experimental]', false);
+        
+        $this->generateTranslator   = $io->confirm("Do you want to generate Translator [$nameClass.fr.yml] file for the entity?. [made by neox]", false);
+        
+        $this->generateTests        = $io->confirm('Do you want to generate tests for the controller?. [Experimental]', false);
     }
 
     public function generate(InputInterface $input, ConsoleStyle $io, Generator $generator): void
@@ -171,7 +172,7 @@ final class MakeNeoxCrud extends AbstractMaker
             _NeoxCoreController::class,
 
         ]);
-
+        
         $original_path = "vendor/xorgxx/neox-make-bundle/src/Resources/skeleton/";
 
         $generator->generateController(
@@ -196,16 +197,18 @@ final class MakeNeoxCrud extends AbstractMaker
         );
 
         // create translator generic
-        $generator->generateFile(
-            'translations/' . $entityTwigVarSingular . '.fr.yml',
-            $original_path . 'table/translations/translator.tpl.php',
-            [
-                "entity_class_name_lc" => $entityTwigVarSingular,
-                "entity_class_name_up" => $entityClassDetails->getShortName(),
-                'entity_fields'        => $entityDoctrineDetails->getDisplayFields(),
-            ]
-        );
-
+        if ($this->generateTranslator) {
+            $generator->generateFile(
+                'translations/' . $entityTwigVarSingular . '.fr.yml',
+                $original_path . 'table/translations/translator.tpl.php',
+                [
+                    "entity_class_name_lc" => $entityTwigVarSingular,
+                    "entity_class_name_up" => $entityClassDetails->getShortName(),
+                    'entity_fields'        => $entityDoctrineDetails->getDisplayFields(),
+                ]
+            );
+        }
+        
         $this->formTypeRenderer->render(
             $formClassDetails,
             $entityDoctrineDetails->getFormFields(),
@@ -339,10 +342,11 @@ final class MakeNeoxCrud extends AbstractMaker
             CsrfTokenManager::class,
             'security-csrf'
         );
-
-        $dependencies->addClassDependency(
-            ParamConverter::class,
-            'annotations'
-        );
+        
+        // !!!! remove the following dependencys for backwards compatibility with symfony < 6.2  compatibility
+//        $dependencies->addClassDependency(
+//            ParamConverter::class,
+//            'annotations'
+//        );
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace NeoxTable\NeoxTableBundle\Twig;
+namespace NeoxMake\NeoxMakeBundle\Twig;
 
 use DateTime;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;

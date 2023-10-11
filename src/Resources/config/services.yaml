@@ -31,7 +31,7 @@ services:
         arguments:
             - Symfony\Contracts\Translation\TranslatorInterface
 
-    app.maker.make_crud:
+    app.maker.neox.make_crud:
         class: NeoxMake\NeoxMakeBundle\Command\MakeNeoxCrud
         arguments: ['@maker.doctrine_helper', '@maker.renderer.form_type_renderer']
         calls:
