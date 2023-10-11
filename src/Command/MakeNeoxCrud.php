@@ -65,7 +65,7 @@ final class MakeNeoxCrud extends AbstractMaker
 
     public static function getCommandName(): string
     {
-        return 'neox:table:crud';
+        return 'neoxmake:table:crud';
     }
 
     public static function getCommandDescription(): string
@@ -172,11 +172,11 @@ final class MakeNeoxCrud extends AbstractMaker
 
         ]);
 
-        $original_path = "vendor/xorgxx/neox-table-bundle/src/Resources/skeleton/";
+        $original_path = "vendor/xorgxx/neox-make-bundle/src/Resources/skeleton/";
 
         $generator->generateController(
             $controllerClassDetails->getFullName(),
-            $original_path . 'crud/' . self::neox_table_crud_path . '/controller/Controller.tpl.php',
+            $original_path . 'table/controller/Controller.tpl.php',
             array_merge([
                 'use_statements' => $useStatements,
                 'entity_class_name' => $entityClassDetails->getShortName(),
@@ -198,7 +198,7 @@ final class MakeNeoxCrud extends AbstractMaker
         // create translator generic
         $generator->generateFile(
             'translations/' . $entityTwigVarSingular . '.fr.yml',
-            $original_path . 'crud/' . self::neox_table_crud_path . '/translations/translator.tpl.php',
+            $original_path . 'table/translations/translator.tpl.php',
             [
                 "entity_class_name_lc" => $entityTwigVarSingular,
                 "entity_class_name_up" => $entityClassDetails->getShortName(),
@@ -252,7 +252,7 @@ final class MakeNeoxCrud extends AbstractMaker
         foreach ($templates as $template => $variables) {
             $generator->generateTemplate(
                 $templatesPath . '/' . $template . '.html.twig',
-                $original_path . 'crud/' . self::neox_table_crud_path . '/templates/' . $template . '.tpl.php',
+                $original_path . 'table/templates/' . $template . '.tpl.php',
                 $variables
             );
         }
@@ -280,7 +280,7 @@ final class MakeNeoxCrud extends AbstractMaker
 
             $generator->generateFile(
                 'tests/Controller/' . $testClassDetails->getShortName() . '.php',
-                $usesEntityManager ? $original_path . 'crud/' . self::neox_table_crud_path . '/test/Test.EntityManager.tpl.php' : $original_path . 'crud/' . self::neox_table_crud_path . '/test/Test.tpl.php',
+                $usesEntityManager ? $original_path . 'table/test/Test.EntityManager.tpl.php' : $original_path . 'table/test/Test.tpl.php',
                 [
                     'use_statements' => $useStatements,
                     'entity_full_class_name' => $entityClassDetails->getFullName(),

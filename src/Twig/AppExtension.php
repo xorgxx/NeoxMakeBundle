@@ -55,7 +55,6 @@ class AppExtension extends AbstractExtension
         ];
     }
 
-
     /**
      * @throws \Twig\Error\SyntaxError
      * @throws \Twig\Error\RuntimeError
@@ -63,7 +62,7 @@ class AppExtension extends AbstractExtension
      */
     public function setJsFile(): string
     {
-        $y = $this->parameterBag->get("neox_table.path_js_bs-datatable");
+        $y = $this->parameterBag->get("neox_make.table.path_js_bs-datatable");
         return $this->twig->render("@NeoxTable/_neoxTableJs.html.twig",["pathJs" => $y ]);
     }
 }
