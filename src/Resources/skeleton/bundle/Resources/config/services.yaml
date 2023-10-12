@@ -17,7 +17,7 @@ services:
     # this creates a service per class whose id is the fully-qualified class name
     Twig\Extension\StringLoaderExtension:
 
-    NeoxMake\NeoxMakeBundle\:
+    NeoxTable\NeoxTableBundle\:
         resource: '../../../src/'
         exclude:
             - '../../../src/DependencyInjection/'
@@ -26,22 +26,23 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
-    NeoxMake\NeoxMakeBundle\Service\NeoxTableTools:
+    NeoxTable\NeoxTableBundle\Service\NeoxTableTools:
         public: true
         arguments:
             - Symfony\Contracts\Translation\TranslatorInterface
-            
-            
-    app.maker.neox.make_bundle:
-        class: NeoxMake\NeoxMakeBundle\Command\MakeNeoxBundle
+
+    app.maker.make_crud:
+        class: NeoxTable\NeoxTableBundle\Command\Maker\MakeNeoxCrud
         arguments: ['@maker.doctrine_helper', '@maker.renderer.form_type_renderer']
+        calls:
+            - [configureCommand, ['@security.command.user_password_encoder', '@?']]
+            - [interact, ['@?', '@?', '@security.command.user_password_encoder']]
         tags:
             - { name: maker.command }
-            
-    app.maker.neox.make_crud:
-        class: NeoxMake\NeoxMakeBundle\Command\MakeNeoxCrud
-        arguments: ['@maker.doctrine_helper', '@maker.renderer.form_type_renderer']
-        tags:
-            - { name: maker.command }
-            
-            
+#    NeoxTableBuilder.service:
+#        public: true
+#        class: NeoxTable\NeoxTableBundle\Service\NeoxTableBuilder
+#
+#    NeoxTable\NeoxTableBundle\Service\NeoxTableBuilder:
+#        public: false
+#        alias: "NeoxTableBuilder.service"

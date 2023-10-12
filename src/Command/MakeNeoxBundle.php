@@ -48,12 +48,12 @@
     /**
      * @author Sadicov Vladimir <sadikoff@gmail.com>
      */
-    final class MakeNeoxCrud extends AbstractMaker
+    final class MakeNeoxBundle extends AbstractMaker
     {
         private Inflector $inflector;
         private string $controllerClassName;
         private bool $generateTests = false;
-        private bool $generateTranslator = false;
+        private bool $generateConfiguration = false;
         
         private const neox_table_crud_path = "neox/table";
         
@@ -64,18 +64,18 @@
         
         public static function getCommandName(): string
         {
-            return 'neoxmake:table:crud';
+            return 'neoxmake:generate:bundle';
         }
         
         public static function getCommandDescription(): string
         {
-            return 'Creates NeoxTable 🌭 CRUD for Doctrine entity class';
+            return 'Creates reusable bundle skeleton generic for Symfony 🌭';
         }
         
         public function configureCommand(Command $command, InputConfiguration $inputConfig): void
         {
             $command
-                ->addArgument('entity-class', InputArgument::OPTIONAL, sprintf('The class name of the entity to create --> <fg=red>NeoxTable !!</> <-- CRUD (e.g. <fg=yellow>%s</>)', Str::asClassName(Str::getRandomTerm())))
+                ->addArgument('name-bundle', InputArgument::OPTIONAL, sprintf('The class name of the bundle to create --> <fg=red>NeoxReusableBundle !!</> (e.g. <fg=yellow>%s</>)', Str::asClassName(Str::getRandomTerm())))
                 ->setHelp(file_get_contents(__DIR__ . '/../Resources/help/MakeCrud.txt'));
             
             $inputConfig->setArgumentAsNonInteractive('entity-class');
@@ -83,10 +83,7 @@
         
         public function interact(InputInterface $input, ConsoleStyle $io, Command $command): void
         {
-            if (null === $input->getArgument('entity-class')) {
-                $argument = $command->getDefinition()->getArgument('entity-class');
-                
-                $entities = $this->doctrineHelper->getEntitiesForAutocomplete();
+            if (null === $input->getArgument('name-bundle')) {
                 
                 $question = new Question($argument->getDescription());
                 $question->setAutocompleterValues($entities);
@@ -95,16 +92,6 @@
                 
                 $input->setArgument('entity-class', $value);
             }
-            
-            // here to put path !!! $defaultControllerClass = Admin\faqs\crud
-            $defaultControllerClass     = Str::asClassName(sprintf('%s Controller', $input->getArgument('entity-class')));
-            $defaultControllerClassNeox = sprintf('Admin\%s\crud', strtolower($input->getArgument('entity-class')));
-            $nameClass                  = strtolower($input->getArgument('entity-class'));
-            $this->controllerClassName = $io->ask(
-                sprintf('Choose a name for your controller class (e.g. <fg=yellow>%s</>)', $defaultControllerClass),
-                $defaultControllerClassNeox
-            );
-            
             $this->generateTranslator   = $io->confirm("Do you want to generate Translator [$nameClass.fr.yml] file for the entity?. [made by neox]", false);
             
             $this->generateTests        = $io->confirm('Do you want to generate tests for the controller?. [Experimental]', false);
