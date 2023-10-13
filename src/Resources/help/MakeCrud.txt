@@ -1,5 +1,22 @@
-The <info>%command.name%</info> command generates crud controller with templates for selected entity.
+The <info>%command.name%</info> command generates reusable bundle skeleton generic.
+
+Stucture generate :
+    -> Root projet
+        |-> Reusable
+            |-> [name-new-bundle]
+                |-> src
+                    |-> DependencyInjection
+                        |-> Configuration - generic !! **
+                        |-> [name-new-bundle]Extension - generic !!
+                    |-> Resources
+                        |-> config
+                            |-> services.xml
+                            |-> services.yml
+                    |-> [name-new-bundle].php
+                |-> LICENSE  - MIT License generic !!
+                |-> readMe.md
+                |-> composer.json - generic !!
 
 <info>php %command.full_name% BlogPost</info>
 
-If the argument is missing, the command will ask for the entity class name interactively.
+If the argument is missing, the command will ask for the name interactively.

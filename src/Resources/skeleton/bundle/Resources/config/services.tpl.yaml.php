@@ -4,8 +4,7 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
-#    neox_table.path_js_bs-datatable: "build/canvas/jsooo/components/bs-datatable.js"
-#    neox_table.path_css_bs-datatable: "build/canvas/css/components/bs-datatable.css
+
 
 services:
     # default configuration for services in *this* file
@@ -16,8 +15,8 @@ services:
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
     Twig\Extension\StringLoaderExtension:
-
-    NeoxTable\NeoxTableBundle\:
+    
+    <?= $name_space ?>:
         resource: '../../../src/'
         exclude:
             - '../../../src/DependencyInjection/'
@@ -26,23 +25,3 @@ services:
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
-    NeoxTable\NeoxTableBundle\Service\NeoxTableTools:
-        public: true
-        arguments:
-            - Symfony\Contracts\Translation\TranslatorInterface
-
-    app.maker.make_crud:
-        class: NeoxTable\NeoxTableBundle\Command\Maker\MakeNeoxCrud
-        arguments: ['@maker.doctrine_helper', '@maker.renderer.form_type_renderer']
-        calls:
-            - [configureCommand, ['@security.command.user_password_encoder', '@?']]
-            - [interact, ['@?', '@?', '@security.command.user_password_encoder']]
-        tags:
-            - { name: maker.command }
-#    NeoxTableBuilder.service:
-#        public: true
-#        class: NeoxTable\NeoxTableBundle\Service\NeoxTableBuilder
-#
-#    NeoxTable\NeoxTableBundle\Service\NeoxTableBuilder:
-#        public: false
-#        alias: "NeoxTableBuilder.service"

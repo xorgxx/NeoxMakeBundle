@@ -12,17 +12,11 @@
     namespace NeoxMake\NeoxMakeBundle\Command;
     
     //use App\Controller\_CoreController;
-    use NeoxMake\NeoxMakeBundle\Controller\_NeoxCoreController;
-    use NeoxMake\NeoxMakeBundle\Service\NeoxTableBuilder;
     use Doctrine\Bundle\DoctrineBundle\DoctrineBundle;
     use Doctrine\Inflector\Inflector;
     use Doctrine\Inflector\InflectorFactory;
-    use Doctrine\ORM\EntityManagerInterface;
-    use Doctrine\ORM\EntityRepository;
+    use NeoxMake\NeoxMakeBundle\Utils\ValidatorCommand;
     use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
-    use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-    use Symfony\Bundle\FrameworkBundle\KernelBrowser;
-    use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
     use Symfony\Bundle\MakerBundle\ConsoleStyle;
     use Symfony\Bundle\MakerBundle\DependencyBuilder;
     use Symfony\Bundle\MakerBundle\Doctrine\DoctrineHelper;
@@ -31,16 +25,13 @@
     use Symfony\Bundle\MakerBundle\Maker\AbstractMaker;
     use Symfony\Bundle\MakerBundle\Renderer\FormTypeRenderer;
     use Symfony\Bundle\MakerBundle\Str;
-    use Symfony\Bundle\MakerBundle\Util\UseStatementGenerator;
-    use Symfony\Bundle\MakerBundle\Validator;
     use Symfony\Bundle\TwigBundle\TwigBundle;
     use Symfony\Component\Console\Command\Command;
     use Symfony\Component\Console\Input\InputArgument;
     use Symfony\Component\Console\Input\InputInterface;
+    use Symfony\Component\Console\Input\InputOption;
     use Symfony\Component\Console\Question\Question;
     use Symfony\Component\Form\AbstractType;
-    use Symfony\Component\HttpFoundation\Request;
-    use Symfony\Component\HttpFoundation\Response;
     use Symfony\Component\Routing\Annotation\Route;
     use Symfony\Component\Security\Csrf\CsrfTokenManager;
     use Symfony\Component\Validator\Validation;
@@ -51,15 +42,16 @@
     final class MakeNeoxBundle extends AbstractMaker
     {
         private Inflector $inflector;
-        private string $controllerClassName;
-        private bool $generateTests = false;
         private bool $generateConfiguration = false;
         
         private const neox_table_crud_path = "neox/table";
+        private ValidatorCommand $validatorCommand;
         
-        public function __construct(private DoctrineHelper $doctrineHelper, private FormTypeRenderer $formTypeRenderer)
+        private $original_path = "vendor/xorgxx/neox-make-bundle/src/Resources/skeleton/";
+        
+        public function __construct(ValidatorCommand $validatorCommand)
         {
-            $this->inflector = InflectorFactory::create()->build();
+            $this->validatorCommand = $validatorCommand;
         }
         
         public static function getCommandName(): string
@@ -75,7 +67,9 @@
         public function configureCommand(Command $command, InputConfiguration $inputConfig): void
         {
             $command
-                ->addArgument('name-bundle', InputArgument::OPTIONAL, sprintf('The class name of the bundle to create --> <fg=red>NeoxReusableBundle !!</> (e.g. <fg=yellow>%s</>)', Str::asClassName(Str::getRandomTerm())))
+                ->addArgument('bundle-name', InputArgument::REQUIRED, sprintf('Name bundle to create without [bundle] in end --> <fg=red>NeoxReusable !!</>', Str::asClassName(Str::getRandomTerm())))
+                ->addOption('configure', '-c', InputOption::VALUE_NONE, 'Do you need to have configuration file ?')
+                // the command help shown when running the command with the "--help" option
                 ->setHelp(file_get_contents(__DIR__ . '/../Resources/help/MakeCrud.txt'));
             
             $inputConfig->setArgumentAsNonInteractive('entity-class');
@@ -83,221 +77,128 @@
         
         public function interact(InputInterface $input, ConsoleStyle $io, Command $command): void
         {
-            if (null === $input->getArgument('name-bundle')) {
-                
+            if (null === $input->getArgument('bundle-name')) {
+                $argument = $command->getDefinition()->getArgument('bundle-name');
                 $question = new Question($argument->getDescription());
-                $question->setAutocompleterValues($entities);
-                
                 $value = $io->askQuestion($question);
-                
-                $input->setArgument('entity-class', $value);
+                $input->setArgument('bundle-name', $value);
             }
-            $this->generateTranslator   = $io->confirm("Do you want to generate Translator [$nameClass.fr.yml] file for the entity?. [made by neox]", false);
             
-            $this->generateTests        = $io->confirm('Do you want to generate tests for the controller?. [Experimental]', false);
+            if (false === $input->getOption('configure')) {
+                $argument = $command->getDefinition()->getOption('configure');
+                $this->generateConfiguration = $io->confirm($argument->getDescription(), false);
+//                $this->validatorCommand->checkBool($this->generateConfiguration);
+            }
         }
         
-        public function generate(InputInterface $input, ConsoleStyle $io, Generator $generator): void
+        public function generate(InputInterface $input, ConsoleStyle $io, Generator $generator): int
         {
-            $entityClassDetails = $generator->createClassNameDetails(
-                Validator::entityExists($input->getArgument('entity-class'), $this->doctrineHelper->getEntitiesForAutocomplete()),
-                'Entity\\'
-            );
+            $rootPath       = 'Library/' . $input->getArgument('bundle-name') ;
+            $rootNameSpace  = $input->getArgument('bundle-name') . '\\' . $input->getArgument('bundle-name') . 'Bundle' ;
             
-            $entityDoctrineDetails = $this->doctrineHelper->createDoctrineDetails($entityClassDetails->getFullName());
-            
-            $repositoryVars = [];
-            $repositoryClassName = EntityManagerInterface::class;
-            
-            if (null !== $entityDoctrineDetails->getRepositoryClass()) {
-                $repositoryClassDetails = $generator->createClassNameDetails(
-                    '\\' . $entityDoctrineDetails->getRepositoryClass(),
-                    'Repository\\',
-                    'Repository'
-                );
-                
-                $repositoryClassName = $repositoryClassDetails->getFullName();
-                
-                $repositoryVars = [
-                    'repository_full_class_name' => $repositoryClassName,
-                    'repository_class_name' => $repositoryClassDetails->getShortName(),
-                    'repository_var' => lcfirst($this->inflector->singularize($repositoryClassDetails->getShortName())),
-                ];
-            }
-            
-            $controllerClassDetails = $generator->createClassNameDetails(
-                $this->controllerClassName,
-                'Controller\\',
-                'Controller'
-            );
-            
-            $iter = 0;
-            do {
-                $formClassDetails = $generator->createClassNameDetails(
-                    $entityClassDetails->getRelativeNameWithoutSuffix() . ($iter ?: '') . 'Type',
-                    'Form\\',
-                    'Type'
-                );
-                ++$iter;
-            } while (class_exists($formClassDetails->getFullName()));
-            
-            $entityVarPlural = lcfirst($this->inflector->pluralize($entityClassDetails->getShortName()));
-            $entityVarSingular = lcfirst($this->inflector->singularize($entityClassDetails->getShortName()));
-            
-            $entityTwigVarPlural = Str::asTwigVariable($entityVarPlural);
-            $entityTwigVarSingular = Str::asTwigVariable($entityVarSingular);
-            
-            $routeName = Str::asRouteName($controllerClassDetails->getRelativeNameWithoutSuffix());
-            $templatesPath = Str::asFilePath($controllerClassDetails->getRelativeNameWithoutSuffix());
-            
-            $useStatements = new UseStatementGenerator([
-                $entityClassDetails->getFullName(),
-                $formClassDetails->getFullName(),
-                $repositoryClassName,
-                AbstractController::class,
-                Request::class,
-                Response::class,
-                Route::class,
-                _NeoxCoreController::class,
-            
-            ]);
-            
-            $original_path = "vendor/xorgxx/neox-make-bundle/src/Resources/skeleton/";
-            
-            $generator->generateController(
-                $controllerClassDetails->getFullName(),
-                $original_path . 'table/controller/Controller.tpl.php',
-                array_merge([
-                    'use_statements' => $useStatements,
-                    'entity_class_name' => $entityClassDetails->getShortName(),
-                    'form_class_name' => $formClassDetails->getShortName(),
-                    'route_path' => Str::asRoutePath($controllerClassDetails->getRelativeNameWithoutSuffix()),
-                    'route_name' => $routeName,
-                    'templates_path' => $templatesPath,
-                    'entity_var_plural' => $entityVarPlural,
-                    'entity_twig_var_plural' => $entityTwigVarPlural,
-                    'entity_var_singular' => $entityVarSingular,
-                    'entity_twig_var_singular' => $entityTwigVarSingular,
-                    'entity_identifier' => $entityDoctrineDetails->getIdentifier(),
-                    'use_render_form' => method_exists(AbstractController::class, 'renderForm'),
-                ],
-                    $repositoryVars
-                )
-            );
-            
-            // create translator generic
-            if ($this->generateTranslator) {
-                $generator->generateFile(
-                    'translations/' . $entityTwigVarSingular . '.fr.yml',
-                    $original_path . 'table/translations/translator.tpl.php',
+            # Bundle !!!
+            $rootNameSpace = $rootNameSpace;
+            $reusableBundle = [
+                $input->getArgument('bundle-name') => [
+                    $rootPath . '/src/' . $input->getArgument('bundle-name') . 'Bundle.php',
+                    $this->original_path . 'bundle/neoxBundle.tpl.php',
                     [
-                        "entity_class_name_lc" => $entityTwigVarSingular,
-                        "entity_class_name_up" => $entityClassDetails->getShortName(),
-                        'entity_fields'        => $entityDoctrineDetails->getDisplayFields(),
+                        "name_space" => $rootNameSpace,
+                        "class_name" => $input->getArgument('bundle-name'),
                     ]
-                );
-            }
-            
-            $this->formTypeRenderer->render(
-                $formClassDetails,
-                $entityDoctrineDetails->getFormFields(),
-                $entityClassDetails
-            );
-            
-            $templates = [
-                '_delete_form' => [
-                    'route_name'                => $routeName,
-                    'entity_twig_var_singular'  => $entityTwigVarSingular,
-                    'entity_identifier'         => $entityDoctrineDetails->getIdentifier(),
                 ],
-                '_form' => [],
-                'crud' => [
-                    'entity_class_name'         => $entityClassDetails->getShortName(),
-                    'entity_twig_var_singular'  => $entityTwigVarSingular,
-                    'entity_identifier'         => $entityDoctrineDetails->getIdentifier(),
-                    'route_name'                => $routeName,
-                    'templates_path'            => $templatesPath,
+                'composer' => [
+                    $rootPath . '/composer.json',
+                    $this->original_path . 'bundle/composer.json.tpl.php',
+                    [
+                        "name_space" => str_replace('/','\\\\', $rootNameSpace) . '\\\\',
+                        "class_name" => $input->getArgument('bundle-name'),
+                    ]
                 ],
-                'index' => [
-                    'entity_class_name'         => $entityClassDetails->getShortName(),
-                    'entity_twig_var_plural'    => $entityTwigVarPlural,
-                    'entity_twig_var_singular'  => $entityTwigVarSingular,
-                    'entity_identifier'         => $entityDoctrineDetails->getIdentifier(),
-                    'entity_fields'             => $entityDoctrineDetails->getDisplayFields(),
-                    'route_name'                => $routeName,
+                'readme' => [
+                    $rootPath . '/readme.md',
+                    $this->original_path . 'bundle/readme.md',
+                    [
+                        "name_space" => $rootNameSpace,
+                        "class_name" => $input->getArgument('bundle-name'),
+                    ]
                 ],
-//            'new' => [
-//                'entity_class_name' => $entityClassDetails->getShortName(),
-//                'route_name' => $routeName,
-//                'templates_path' => $templatesPath,
-//            ],
-                'show' => [
-                    'entity_class_name'         => $entityClassDetails->getShortName(),
-                    'entity_twig_var_singular'  => $entityTwigVarSingular,
-                    'entity_identifier'         => $entityDoctrineDetails->getIdentifier(),
-                    'entity_fields'             => $entityDoctrineDetails->getDisplayFields(),
-                    'route_name'                => $routeName,
-                    'templates_path'            => $templatesPath,
+                
+                'LICENSE' => [
+                    $rootPath . '/LICENSE',
+                    $this->original_path . 'bundle/LICENSE',
+                    [
+                        "name_space" => $rootNameSpace,
+                        "class_name" => $input->getArgument('bundle-name'),
+                    ]
+                ],
+                
+                # DependencyInjection Folder !!!
+                $input->getArgument('bundle-name') => [
+                    $rootPath . '/src/DependencyInjection/' . $input->getArgument('bundle-name') . 'Extension.php',
+                    $this->original_path . 'bundle/DependencyInjection/NeoxBundleExtension.tpl.php',
+                    [
+                        "name_space" => $rootNameSpace. '\\DependencyInjection',
+                        "class_name" => $input->getArgument('bundle-name') . 'Extension',
+                    ]
+                ],
+                'configuration' => [
+                    $rootPath . '/src/DependencyInjection/configuration.php',
+                    $this->original_path . 'bundle/DependencyInjection/configuration.tpl.php',
+                    [
+                        "name_space" => $rootNameSpace . '\\DependencyInjection',
+                        "class_name" => 'configuration',
+                    ]
+                ],
+                
+                # Resource Folder !!!
+                "service.xml"=> [
+                    $rootPath . '/src/Resources/config/services.xml',
+                    $this->original_path . 'bundle/Resources/config/services.tpl.xml',
+                    [
+                        "name_space" => $rootNameSpace . '\\Resources\\config',
+                        "class_name" => $input->getArgument('bundle-name'),
+                    ]
+                ],
+                'services.yml' => [
+                    $rootPath . '/src/Resources/config/services.yml',
+                    $this->original_path . 'bundle/Resources/config/services.tpl.yaml.php',
+                    [
+                        "name_space" => $rootNameSpace,
+                    ]
                 ],
             ];
-            
-            foreach ($templates as $template => $variables) {
-                $generator->generateTemplate(
-                    $templatesPath . '/' . $template . '.html.twig',
-                    $original_path . 'table/templates/' . $template . '.tpl.php',
-                    $variables
-                );
-            }
-            
-            
-            if ($this->generateTests) {
-                $testClassDetails = $generator->createClassNameDetails(
-                    $entityClassDetails->getRelativeNameWithoutSuffix(),
-                    'Test\\Controller\\',
-                    'ControllerTest'
-                );
-                
-                $useStatements = new UseStatementGenerator([
-                    $entityClassDetails->getFullName(),
-                    WebTestCase::class,
-                    KernelBrowser::class,
-                    $repositoryClassName,
-                ]);
-                
-                $usesEntityManager = EntityManagerInterface::class === $repositoryClassName;
-                
-                if ($usesEntityManager) {
-                    $useStatements->addUseStatement(EntityRepository::class);
-                }
-                
+            foreach ($reusableBundle as $class => $variables) {
                 $generator->generateFile(
-                    'tests/Controller/' . $testClassDetails->getShortName() . '.php',
-                    $usesEntityManager ? $original_path . 'table/test/Test.EntityManager.tpl.php' : $original_path . 'table/test/Test.tpl.php',
-                    [
-                        'use_statements' => $useStatements,
-                        'entity_full_class_name' => $entityClassDetails->getFullName(),
-                        'entity_class_name' => $entityClassDetails->getShortName(),
-                        'entity_var_singular' => $entityVarSingular,
-                        'route_path' => Str::asRoutePath($controllerClassDetails->getRelativeNameWithoutSuffix()),
-                        'route_name' => $routeName,
-                        'class_name' => Str::getShortClassName($testClassDetails->getFullName()),
-                        'namespace' => Str::getNamespace($testClassDetails->getFullName()),
-                        'form_fields' => $entityDoctrineDetails->getFormFields(),
-                        'repository_class_name' => $usesEntityManager ? EntityManagerInterface::class : $repositoryVars['repository_class_name'],
-                        'form_field_prefix' => strtolower(Str::asSnakeCase($entityTwigVarSingular)),
-                    ]
+                    $variables[0],
+                    $variables[1],
+                    $variables[2]
                 );
-                
-                if (!class_exists(WebTestCase::class)) {
-                    $io->caution('You\'ll need to install the `symfony/test-pack` to execute the tests for your new controller.');
-                }
             }
+            
+            # DependencyInjection Folder !!!
+//            $generator->generateFile(
+//                'Library/' . $input->getArgument('bundle-name') . '/DependencyInjection/' . $input->getArgument('bundle-name') . 'Bundle.php',
+//                $this->original_path . 'bundle/neoxBundle.tpl.php',
+//                [
+//                    "name_space" => $rootNameSpace,
+//                    "class_name" => $input->getArgument('bundle-name'),
+//                ]
+//            );
+            
             
             $generator->writeChanges();
-            
             $this->writeSuccessMessage($io);
-            
-            $io->text(sprintf('Next: Check your new neox-table-crud CRUD by going to <fg=yellow>%s/</>', Str::asRoutePath($controllerClassDetails->getRelativeNameWithoutSuffix())));
+//            NeoxMake\NeoxMakeBundle\NeoxMakeBundle::class => ['all' => true],
+            $bundles = str_replace('/','\\', $rootNameSpace) . '\\' . $input->getArgument('bundle-name') . "bundle::class => ['all' => true]";
+            $io->success('Dont forget to add in :');
+            $io->text(sprintf('config/Bundles.php <fg=yellow>%s</>', $bundles));
+//           "NeoxNotifier\\NeoxtifierBundle\\": "Library/NeoxtifierBundle/src/",
+            $composer = str_replace('/','\\\\', $rootNameSpace) . '\\\\ : ' . $rootPath . '/src/';
+            $io->text(sprintf('composer.json -> autoload <fg=yellow>%s</>', $composer));
+
+            $io->text(sprintf('Next: Check your new ReusableBundle by going to <fg=yellow>%s</>', $rootPath));
+            return Command::SUCCESS;
         }
         
         public function configureDependencies(DependencyBuilder $dependencies): void
