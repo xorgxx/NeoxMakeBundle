@@ -99,12 +99,12 @@
             # Bundle !!!
             $rootNameSpace = $rootNameSpace;
             $reusableBundle = [
-                $input->getArgument('bundle-name') => [
+                $input->getArgument('bundle-name'). 'Bundle' => [
                     $rootPath . '/src/' . $input->getArgument('bundle-name') . 'Bundle.php',
                     $this->original_path . 'bundle/neoxBundle.tpl.php',
                     [
                         "name_space" => $rootNameSpace,
-                        "class_name" => $input->getArgument('bundle-name'),
+                        "class_name" => $input->getArgument('bundle-name') . 'Bundle',
                     ]
                 ],
                 'composer' => [
