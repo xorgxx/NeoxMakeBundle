@@ -40,7 +40,6 @@ If you want to contribute \(thank you!\) to this bundle, here are some guideline
     * You fix a bug that wasn't covered before
     * You add a new feature
     * You see code that works but isn't covered by any tests \(there is a special place in heaven for you\)
-    * ->> 🔥🔥  28/07/2023 have to update Controller.tpl.php according to new version Makebundle symfony how das not have anymore "repositoryHasSaveAndRemoveMethode"
 ## Todo
 * Packagist
 
