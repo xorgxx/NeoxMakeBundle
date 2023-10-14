@@ -9,36 +9,13 @@ Be aware that there is no testing code !
 ## Installation BETA VERSION !!
 Install the bundle for Composer !! as is still on beta version !!
 
-````
-  composer require xorgxx/neox-table-bundle
-  or 
-  composer require xorgxx/neox-table-bundle:0.*
-````
-
-Make sure that is register the bundle in your AppKernel:
-```php
-Bundles.php
-<?php
-
-return [
-    .....
-    NeoxTable\NeoxTableBundle\NeoxTableBundle::class => ['all' => true],
-    .....
-];
-```
-
-**NOTE:** _You may need to use [ symfony composer dump-autoload ] to reload autoloading_
-
-..... Done 🎈
-
-
 ## Configuration
 
 No configuration except that you have install stimulus/turbo-ux and setup correctly !!
 Base css on Bootstrap 5 so if you have install on your project all css and js from Bs5 going to be applique.
 
 How to use in console ?
-``` symfony console neox:table:crud ```
+``` symfony console neoxmake:table:crud ```
 
 ```
  The class name of the entity to create --> NeoxTable !! <-- CRUD (e.g. Deliciou

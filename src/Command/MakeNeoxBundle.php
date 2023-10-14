@@ -176,17 +176,6 @@
                 );
             }
             
-            # DependencyInjection Folder !!!
-//            $generator->generateFile(
-//                'Library/' . $input->getArgument('bundle-name') . '/DependencyInjection/' . $input->getArgument('bundle-name') . 'Bundle.php',
-//                $this->original_path . 'bundle/neoxBundle.tpl.php',
-//                [
-//                    "name_space" => $rootNameSpace,
-//                    "class_name" => $input->getArgument('bundle-name'),
-//                ]
-//            );
-            
-            
             $generator->writeChanges();
             $this->writeSuccessMessage($io);
 //            NeoxMake\NeoxMakeBundle\NeoxMakeBundle::class => ['all' => true],
@@ -194,7 +183,7 @@
             $io->success('Dont forget to add in :');
             $io->text(sprintf('config/Bundles.php <fg=yellow>%s</>', $bundles));
 //           "NeoxNotifier\\NeoxtifierBundle\\": "Library/NeoxtifierBundle/src/",
-            $composer = str_replace('/','\\\\', $rootNameSpace) . '\\\\ : ' . $rootPath . '/src/';
+            $composer = str_replace('\\','\\\\', $rootNameSpace) . '\\\\ : ' . $rootPath . '/src/';
             $io->text(sprintf('composer.json -> autoload <fg=yellow>%s</>', $composer));
 
             $io->text(sprintf('Next: Check your new ReusableBundle by going to <fg=yellow>%s</>', $rootPath));

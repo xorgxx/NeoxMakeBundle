@@ -29,8 +29,8 @@ return [
 
 
 ## Tools !
-* Table-crud [neox:table:crud]( Doc/MakeTable.md )
-* ReusableBundle generator "generic" skeleton todo !!!
+* Table-crud [neoxmake:table:crud]( Doc/MakeTable.md )
+* ReusableBundle generator [neoxmake:generate:bundle]( Doc/MakeBundle.md )
 
 ## Contributing
 If you want to contribute \(thank you!\) to this bundle, here are some guidelines:
