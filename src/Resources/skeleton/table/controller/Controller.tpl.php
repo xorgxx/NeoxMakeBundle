@@ -19,7 +19,7 @@ class <?= $class_name ?> extends _NeoxCoreController
 
     // 🔥 The magic happens here! 🔥
     if ( $this->getNeoxTableBuilder()::checkTurbo($request) ) {
-    return $this->render('@NeoxTable/neoxTable.html.twig',["neoxTable" => $neoxTable  ]);
+    return $this->render('@NeoxMake/neoxTable.html.twig',["neoxTable" => $neoxTable  ]);
     }
 
     return $this->render('<?= $templates_path ?>/index.html.twig', [
@@ -57,7 +57,7 @@ $<?= $repository_var ?>->save($<?= $entity_var_singular ?>, true);
 $this->addFlash('success', "Enregistrement a été ajouté.");
 // 🔥 The magic happens here! 🔥
 if ( $this->getNeoxTableBuilder()::checkTurbo($request) ) {
-return $this->render('@NeoxTable/msg.stream.html.twig', ["domaine" => "<?= $entity_twig_var_singular ?>"]);
+return $this->render('@NeoxMake/msg.stream.html.twig', ["domaine" => "<?= $entity_twig_var_singular ?>"]);
 }
 return $this->redirectToRoute('<?= $route_name ?>_index', [], Response::HTTP_SEE_OTHER);
 }
@@ -102,7 +102,7 @@ $this->addFlash('success', "Enregistrement a été modifier.");
 
 // 🔥 The magic happens here! 🔥
 if ( $this->getNeoxTableBuilder()::checkTurbo($request) ) {
-return $this->render('@NeoxTable/msg.stream.html.twig', ["domaine" => "<?= $entity_twig_var_singular ?>"]);
+return $this->render('@NeoxMake/msg.stream.html.twig', ["domaine" => "<?= $entity_twig_var_singular ?>"]);
 }
 return $this->redirectToRoute('<?= $route_name ?>_index', [], Response::HTTP_SEE_OTHER);
 }
@@ -136,7 +136,7 @@ $this->addFlash('success', $msg);
 
 // 🔥 The magic happens here! 🔥
 if ( $this->getNeoxTableBuilder()::checkTurbo($request) ) {
-return $this->render('@NeoxTable/msg.stream.html.twig', ["domaine" => "<?= $entity_var_singular ?>"]);
+return $this->render('@NeoxMake/msg.stream.html.twig', ["domaine" => "<?= $entity_var_singular ?>"]);
 }
 }
 
@@ -154,7 +154,7 @@ $this->addFlash('success', "Enregistrement a été supprimé.");
 
 // 🔥 The magic happens here! 🔥
 if ( $this->getNeoxTableBuilder()::checkTurbo($request) ) {
-return $this->render('@NeoxTable/msg.stream.html.twig', ["domaine" => "<?= $entity_var_singular ?>"]);
+return $this->render('@NeoxMake/msg.stream.html.twig', ["domaine" => "<?= $entity_var_singular ?>"]);
 }
 }
 

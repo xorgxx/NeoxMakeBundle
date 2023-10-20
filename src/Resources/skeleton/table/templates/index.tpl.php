@@ -12,7 +12,7 @@
 
 {% block contentSub %}
     {# ------- Render -------- #}
-     {% include'@NeoxTable/neoxTable.html.twig' with  {'neoxTable': neoxTable } %}
+     {% include'@NeoxMake/neoxTable.html.twig' with  {'neoxTable': neoxTable } %}
     {# ======== End Block ========= #}
 {% endblock %}
 

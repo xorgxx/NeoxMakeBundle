@@ -102,7 +102,7 @@ use NeoxTable\NeoxTableBundle\Service\buttonBuild;
 
         // 🔥 The magic happens here! 🔥
             if ( $this->getNeoxTableBuilder()::checkTurbo($request) ) {
-            return $this->render('@NeoxTable/neoxTable.html.twig',["neoxTable" => $neoxTable  ]);
+            return $this->render('@NeoxMake/neoxTable.html.twig',["neoxTable" => $neoxTable  ]);
         }
 
         return $this->render('admin/post/crud/index.html.twig', [

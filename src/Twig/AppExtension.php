@@ -63,6 +63,6 @@ class AppExtension extends AbstractExtension
     public function setJsFile(): string
     {
         $y = $this->parameterBag->get("neox_make.table.path_js_bs-datatable");
-        return $this->twig->render("@NeoxTable/_neoxTableJs.html.twig",["pathJs" => $y ]);
+        return $this->twig->render("@NeoxMake/_neoxTableJs.html.twig",["pathJs" => $y ]);
     }
 }
