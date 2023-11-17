@@ -143,7 +143,7 @@
                     ]
                 ],
                 'configuration' => [
-                    $rootPath . '/src/DependencyInjection/configuration.php',
+                    $rootPath . '/src/DependencyInjection/Configuration.php',
                     $this->original_path . 'bundle/DependencyInjection/configuration.tpl.php',
                     [
                         "name_space" => $rootNameSpace . '\\DependencyInjection',
@@ -161,7 +161,7 @@
                     ]
                 ],
                 'services.yml' => [
-                    $rootPath . '/src/Resources/config/services.yml',
+                    $rootPath . '/src/Resources/config/services.yaml',
                     $this->original_path . 'bundle/Resources/config/services.tpl.yaml.php',
                     [
                         "name_space" => $rootNameSpace,
@@ -183,7 +183,7 @@
             $io->success('Dont forget to add in :');
             $io->text(sprintf('config/Bundles.php <fg=yellow>%s</>', $bundles));
 //           "NeoxNotifier\\NeoxtifierBundle\\": "Library/NeoxtifierBundle/src/",
-            $composer = str_replace('\\','\\\\', $rootNameSpace) . '\\\\ : ' . $rootPath . '/src/';
+            $composer = str_replace('"\\','\\\\', $rootNameSpace) . '\\\\" : "' . $rootPath . '/src/",';
             $io->text(sprintf('composer.json -> autoload <fg=yellow>%s</>', $composer));
 
             $io->text(sprintf('Next: Check your new ReusableBundle by going to <fg=yellow>%s</>', $rootPath));

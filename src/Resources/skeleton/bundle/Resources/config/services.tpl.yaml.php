@@ -16,7 +16,7 @@ services:
     # this creates a service per class whose id is the fully-qualified class name
     Twig\Extension\StringLoaderExtension:
     
-    <?= $name_space ?>:
+    <?= $name_space ?>\:
         resource: '../../../src/'
         exclude:
             - '../../../src/DependencyInjection/'
