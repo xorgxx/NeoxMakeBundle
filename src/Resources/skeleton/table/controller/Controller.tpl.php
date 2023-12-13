@@ -3,22 +3,24 @@
 namespace <?= $namespace ?>;
 
 <?= $use_statements; ?>
+// use App\Controller\Core;
 
 #[Route('/%admin%<?= $route_path ?>')]
-class <?= $class_name ?> extends _NeoxCoreController
+class <?= $class_name ?> extends AbstractController
 {
+use Core;
 <?= $generator->generateRouteForControllerMethod('/', sprintf('%s_index', $route_name), ['GET']) ?>
 <?php if (isset($repository_full_class_name)): ?>
     public function index(Request $request, <?= $repository_class_name ?> $<?= $repository_var ?>): Response
     {
-    $neoxTable = $this->getNeoxTableBuilder()
+    $neoxTable = $this->neoxTableBuilder
     ->filterFields("#,'ADD-YOUR-FIELDS'", "<?= $entity_twig_var_singular ?>")
     ->setEntity($<?= $repository_var ?>->findAll())
     ->setActButton("@<?= $route_name ?>")
     ;
 
     // 🔥 The magic happens here! 🔥
-    if ( $this->getNeoxTableBuilder()::checkTurbo($request) ) {
+    if ( $this->neoxTableBuilder::checkTurbo($request) ) {
     return $this->render('@NeoxMake/neoxTable.html.twig',["neoxTable" => $neoxTable  ]);
     }
 
@@ -56,7 +58,7 @@ if ($form->isSubmitted() && $form->isValid()) {
 $<?= $repository_var ?>->save($<?= $entity_var_singular ?>, true);
 $this->addFlash('success', "Enregistrement a été ajouté.");
 // 🔥 The magic happens here! 🔥
-if ( $this->getNeoxTableBuilder()::checkTurbo($request) ) {
+if ( $this->neoxTableBuilder::checkTurbo($request) ) {
 return $this->render('@NeoxMake/msg.stream.html.twig', ["domaine" => "<?= $entity_twig_var_singular ?>"]);
 }
 return $this->redirectToRoute('<?= $route_name ?>_index', [], Response::HTTP_SEE_OTHER);
@@ -101,7 +103,7 @@ $<?= $repository_var ?>->save($<?= $entity_var_singular ?>, true);
 $this->addFlash('success', "Enregistrement a été modifier.");
 
 // 🔥 The magic happens here! 🔥
-if ( $this->getNeoxTableBuilder()::checkTurbo($request) ) {
+if ( $this->neoxTableBuilder::checkTurbo($request) ) {
 return $this->render('@NeoxMake/msg.stream.html.twig', ["domaine" => "<?= $entity_twig_var_singular ?>"]);
 }
 return $this->redirectToRoute('<?= $route_name ?>_index', [], Response::HTTP_SEE_OTHER);
@@ -135,7 +137,7 @@ $msg = $onOff ? "Post est visible de tous." : "Post n'est plus visible de tous."
 $this->addFlash('success', $msg);
 
 // 🔥 The magic happens here! 🔥
-if ( $this->getNeoxTableBuilder()::checkTurbo($request) ) {
+if ( $this->neoxTableBuilder::checkTurbo($request) ) {
 return $this->render('@NeoxMake/msg.stream.html.twig', ["domaine" => "<?= $entity_var_singular ?>"]);
 }
 }
@@ -153,7 +155,7 @@ $<?= $repository_var ?>->remove($<?= $entity_var_singular ?>, true);
 $this->addFlash('success', "Enregistrement a été supprimé.");
 
 // 🔥 The magic happens here! 🔥
-if ( $this->getNeoxTableBuilder()::checkTurbo($request) ) {
+if ( $this->neoxTableBuilder::checkTurbo($request) ) {
 return $this->render('@NeoxMake/msg.stream.html.twig', ["domaine" => "<?= $entity_var_singular ?>"]);
 }
 }
