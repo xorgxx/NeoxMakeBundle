@@ -47,7 +47,7 @@
                     $s = $this->getBuildButton($this->data);
                     break;
                 default :
-                    $s = "<$this->type $this->turbo $this->ref $this->class $this->style > $this->icon $this->label </$this->type>" ;
+                    $s = "<$this->type $this->data $this->turbo $this->ref $this->class $this->style > $this->icon $this->label </$this->type>" ;
                     break;
             }
             return $s ;
