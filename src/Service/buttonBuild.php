@@ -44,7 +44,7 @@
                     $s = "{% if item.publish is defined %} $s {% endif %}";
                     break;
                 case "@":
-                    $s = $this->getBuildButton($this->data);
+                    $s = $this->add;
                     break;
                 default :
                     $s = "<$this->type $this->data $this->turbo $this->ref $this->class $this->style > $this->icon $this->label </$this->type>" ;
