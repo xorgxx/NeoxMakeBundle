@@ -318,7 +318,8 @@ class NeoxTableTools
                                 $t = "{{ item.$elem|enum() }}";
                                 break;
                             default:
-                                $t = "{{ item.$elem|$params }}";
+                                $params     = str_replace("#","",$params);
+                                $t          = "{{ item.$elem|$params }}";
                                 break;
                         }
                     }
