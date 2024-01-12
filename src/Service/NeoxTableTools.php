@@ -318,7 +318,7 @@ class NeoxTableTools
                                 $t = "{{ item.$elem|enum() }}";
                                 break;
                             default:
-                                $params     = str_replace("#","",$params);
+//                                $params     = str_replace("#","",$params);
                                 $t          = "{{ item.$elem|$params }}";
                                 break;
                         }
@@ -379,16 +379,22 @@ class NeoxTableTools
      */
     private function checkDomaineToTranslateRelationEntity(string $item): array
     {
-        $subDomaine     = "";
+        $subDomaine     = null;
         $elem           = $item;
-        $params         = "";
+        $params         = null;
+        $vachar         = $item;
         
         if (str_contains($item, "#")) {
-            [$vachar, $params] = explode("#", $item, 2);
-            [$elem, $subDomaine] = str_contains($vachar, "@") ? explode("@", $vachar, 2) : [$vachar, ""];
+            [$vachar, $params]          = explode("#", $item, 2);
+            $elem                       = $vachar == "" ? $item : $vachar;
+            [$params, $subDomaine]      = str_contains($params, "@") ? explode("@", $params, 2) : [$params, ""];
+        }else{
+
+            [$elem, $subDomaine] = str_contains($item, "@") ? explode("@", $item, 2) : [$item, ""];
         }
         
-        return [$subDomaine, $item, $elem, $params];
+        
+        return [$subDomaine, $elem, $elem, $params];
 
 
 

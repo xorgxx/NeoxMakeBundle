@@ -165,6 +165,8 @@ Now possibility to add "filter" and "function" Twig
     ->filterFields("#, title, description, position, faqsDomaine.value, category#join('|')|raw", "faq")
     or to give custome one
     ->filterFields("#, title, description, position, faqsDomaine#enum, category#join('|')", "faq")
+    or add author.email[twig filter : raw] + [domaine translator : user]
+    ->filterFields("#, title, summary, author.email#raw@user", "post", [...]) <----- !!here
 ````
 ## Contributing
 If you want to contribute \(thank you!\) to this bundle, here are some guidelines:
