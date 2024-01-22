@@ -168,6 +168,36 @@ Now possibility to add "filter" and "function" Twig
     or add author.email[twig filter : raw] + [domaine translator : user]
     ->filterFields("#, title, summary, author.email#raw@user", "post", [...]) <----- !!here
 ````
+
+Twig Template 
+````
+    {% extends 'admin/_layout-administrator.html.twig' %}
+    
+    {% block title %}{{ "#{neoxTable.domaine}.home.title"|default('Nc...')|trans({}, neoxTable.domaine)|capitalize }} index{% endblock %}
+    
+     {% block stylesheets %}
+         {{ parent() }}
+         <link rel="stylesheet" href="{{ asset('build/canvas/css/components/bs-switches.css') }}"/>
+         <link rel="stylesheet" href="{{ asset('build/canvas/css/components/radio-checkbox.css') }}"/>
+     {% endblock %}
+    
+    {% block contentSub %}
+        {# ------- Render -------- #}
+         {% include'@NeoxMake/neoxTable.html.twig' with  {
+             'neoxTable': neoxTable,
+             {# ------- Pass option to Datable !! -------- #}
+             'orderOptions': {
+                order: [[1, 'desc']],
+            },
+         } %}
+        {# ======== End Block ========= #}
+    {% endblock %}
+    
+    {% block javascripts %}
+        {{ parent() }}
+    {% endblock javascripts %}
+````
+
 ## Contributing
 If you want to contribute \(thank you!\) to this bundle, here are some guidelines:
 
