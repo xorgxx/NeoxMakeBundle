@@ -186,7 +186,7 @@ Twig Template
          {% include'@NeoxMake/neoxTable.html.twig' with  {
              'neoxTable': neoxTable,
              {# ------- Pass option to Datable !! -------- #}
-             'orderOptions': {
+             'options': {
                 order: [[1, 'desc']],
             },
          } %}

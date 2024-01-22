@@ -5,7 +5,7 @@
 {#    <script src="https://cdn.datatables.net/v/bs5/dt-1.13.4/datatables.min.js"></script>#}
 {#    <script type="text/javascript" src="https://cdn.datatables.net/plug-ins/1.13.4/sorting/natural.js"></script>#}
 <script>
-    let orderOptions = {{ orderOptions|default('null')|json_encode|raw }};
+    let options = {{ options|default('null')|json_encode|raw }};
     // let orderOptions = {"order": [[1, "desc"]]};  // Peut provenir de votre logique
 
     $('#datatable1').dataTable($.extend(true, {}, {
@@ -62,6 +62,6 @@
             "search": "Rechercher :",
             "thousands": " "
         }
-    }, orderOptions));
+    }, options));
 
 </script>
