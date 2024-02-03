@@ -7,6 +7,7 @@
     use Symfony\Component\Console\Output\OutputInterface;
     use Symfony\Component\Console\Question\ChoiceQuestion;
     use Symfony\Component\Console\Question\Question;
+    use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
     use Symfony\Component\Filesystem\Filesystem;
     use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
     use Symfony\Component\Finder\Finder;
@@ -14,8 +15,17 @@
     
     class MakeNeoxBundleReleaseCommand extends Command
     {
-        private const BUNDLES_FILE_PATH = 'config/bundles.php';
-        private const COMPOSER_FILE_PATH = 'composer.json';
+        private const BUNDLES_FILE_PATH     = 'config/bundles.php';
+        private const COMPOSER_FILE_PATH    = 'composer.json';
+        private string $pathRepo ;
+        
+        public function __construct(ParameterBagInterface $parameterBag)
+        {
+            $this->parameterBag = $parameterBag;
+            $this->pathRepo     = $parameterBag->get('neox_make.directory_bundle');
+            // Appel du constructeur parent avec le nom de la commande
+            parent::__construct('neoxmake:bundle:release');
+        }
         
         protected function configure()
         {
@@ -44,7 +54,7 @@
             
             // Déplacez le bundle vers le nouvel emplacement
             try {
-                $filesystem->rename("Library/{$bundleName}", $newLocation . "/{$bundleName}");
+                $filesystem->rename("$this->pathRepo{$bundleName}", $newLocation . "/{$bundleName}");
                 $output->writeln("The bundle was successfully moved to {$newLocation}.");
             } catch (IOExceptionInterface $exception) {
                 $output->writeln("Error moving bundle: {$exception->getMessage()}");
@@ -62,7 +72,7 @@
             // "xorgXxxx\\xorgXxxxBundle\\" : "Library/xorgXxxx/src/",
             $composerContent    = file_get_contents(self::COMPOSER_FILE_PATH);
             $composerClass      = "{$bundleName}\\\\{$bundleName}Bundle\\\\";
-            $composerContent    = str_replace("\"{$composerClass}\" : \"Library/{$bundleName}/src/\",", '', $composerContent);
+            $composerContent    = str_replace("\"{$composerClass}\" : \"$this->pathRepo{$bundleName}/src/\",", '', $composerContent);
             file_put_contents(self::COMPOSER_FILE_PATH, $composerContent, LOCK_EX);
             
             // Exécutez la commande composer dump-autoload
@@ -92,7 +102,7 @@
         
         private function bundleExists($bundleName)
         {
-            return is_dir("Library/{$bundleName}");
+            return is_dir("$this->pathRepo{$bundleName}");
         }
         
         
@@ -102,7 +112,7 @@
             
             // Utilisez le composant Finder pour parcourir les dossiers dans le répertoire "Library"
             $finder = new Finder();
-            $finder->directories()->in('Library')->depth(0);
+            $finder->directories()->in($this->pathRepo)->depth(0);
             
             // Ajoutez chaque dossier trouvé comme un possible bundle
             foreach ($finder as $directory) {

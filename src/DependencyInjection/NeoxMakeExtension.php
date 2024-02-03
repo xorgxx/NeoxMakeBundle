@@ -24,5 +24,10 @@
 
             $configuration  = $this->getConfiguration($configs, $container);
             $config         = $this->processConfiguration($configuration, $configs);
+            
+            // set key config as container parameters
+            foreach ($config as $key => $value) {
+                $container->setParameter('neox_make.'.$key, $value);
+            }
 		}
 	}

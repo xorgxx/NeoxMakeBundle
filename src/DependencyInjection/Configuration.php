@@ -28,6 +28,7 @@ final class Configuration implements ConfigurationInterface
         $rootNode
             ->addDefaultsIfNotSet()
             ->children()
+                ->scalarNode('directory_bundle')->defaultValue("Library/")->end()
                 ->arrayNode('table')
                     ->children()
                         ->scalarNode('path_js_bs-datatable')

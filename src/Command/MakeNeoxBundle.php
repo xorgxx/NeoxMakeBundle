@@ -31,6 +31,7 @@
     use Symfony\Component\Console\Input\InputInterface;
     use Symfony\Component\Console\Input\InputOption;
     use Symfony\Component\Console\Question\Question;
+    use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
     use Symfony\Component\Form\AbstractType;
     use Symfony\Component\Process\Process;
     use Symfony\Component\Routing\Annotation\Route;
@@ -49,8 +50,12 @@
         
         private string $original_path       = "vendor/xorgxx/neox-make-bundle/src/Resources/skeleton/";
         
-        public function __construct()
+        public function __construct(ParameterBagInterface $parameterBag)
         {
+            $this->parameterBag = $parameterBag;
+            $this->pathRepo     = $parameterBag->get('neox_make.directory_bundle');
+            // Appel du constructeur parent avec le nom de la commande
+//            parent::__construct('neoxmake:generate:bundle');
         }
         
         public static function getCommandName(): string
@@ -92,7 +97,7 @@
         
         public function generate(InputInterface $input, ConsoleStyle $io, Generator $generator): int
         {
-            $rootPath       = 'Library/' . $input->getArgument('bundle-name') ;
+            $rootPath       = $this->pathRepo . $input->getArgument('bundle-name') ;
             $rootNameSpace  = $input->getArgument('bundle-name') . '\\' . $input->getArgument('bundle-name') . 'Bundle' ;
             
             # Bundle !!!
@@ -240,12 +245,12 @@
             // Si la position du tableau return est trouvée
             if ($returnPos !== false) {
                 // Trouvez la position de la fin du tableau return
-                $returnEndPos = strpos($content, '];', $returnPos);
+                $returnEndPos   = strpos($content, '];', $returnPos);
                 
                 // Ajoutez votre bundle à la fin du tableau return
                 $tab = '    ';
-                $newBundleLine = sprintf("%s%s::class => ['all' => true],\n", $tab, $bundleClass);
-                $content = substr_replace($content, $newBundleLine, $returnEndPos, 0);
+                $newBundleLine  = sprintf("%s%s::class => ['all' => true],\n", $tab, $bundleClass);
+                $content        = substr_replace($content, $newBundleLine, $returnEndPos, 0);
                 
                 // Enregistrez les modifications dans le fichier
                 file_put_contents(self::BUNDLES_FILE_PATH, $content, LOCK_EX);

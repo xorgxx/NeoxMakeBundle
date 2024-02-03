@@ -38,7 +38,7 @@ services:
     app.maker.neox.make_bundle:
         class: NeoxMake\NeoxMakeBundle\Command\MakeNeoxBundle
         arguments:
-            - '@app.ValidatorCommand'
+            - '@Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface'
         tags:
             - { name: maker.command }
             
