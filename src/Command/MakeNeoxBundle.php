@@ -42,20 +42,15 @@
      */
     final class MakeNeoxBundle extends AbstractMaker
     {
-        private const BUNDLES_FILE_PATH = 'config/bundles.php';
-        private const COMPOSER_FILE_PATH = 'composer.json';
-        
-        private Inflector $inflector;
+        private const BUNDLES_FILE_PATH     = 'config/bundles.php';
+        private const COMPOSER_FILE_PATH    = 'composer.json';
+        private const ORIGINAL_PATH         = 'vendor/xorgxx/neox-make-bundle/src/Resources/skeleton/';
         private bool $generateConfiguration = false;
         
-        private const neox_table_crud_path = "neox/table";
-        private ValidatorCommand $validatorCommand;
+        private string $original_path       = "vendor/xorgxx/neox-make-bundle/src/Resources/skeleton/";
         
-        private $original_path = "vendor/xorgxx/neox-make-bundle/src/Resources/skeleton/";
-        
-        public function __construct(ValidatorCommand $validatorCommand)
+        public function __construct()
         {
-            $this->validatorCommand = $validatorCommand;
         }
         
         public static function getCommandName(): string
@@ -104,7 +99,7 @@
             $reusableBundle = [
                 $input->getArgument('bundle-name'). 'Bundle' => [
                     $rootPath . '/src/' . $input->getArgument('bundle-name') . 'Bundle.php',
-                    $this->original_path . 'bundle/neoxBundle.tpl.php',
+                    self::ORIGINAL_PATH . 'bundle/neoxBundle.tpl.php',
                     [
                         "name_space" => $rootNameSpace,
                         "class_name" => $input->getArgument('bundle-name') . 'Bundle',
@@ -112,7 +107,7 @@
                 ],
                 'composer' => [
                     $rootPath . '/composer.json',
-                    $this->original_path . 'bundle/composer.json.tpl.php',
+                    self::ORIGINAL_PATH . 'bundle/composer.json.tpl.php',
                     [
                         "name_space" => str_replace('/','\\\\', $rootNameSpace) . '\\\\',
                         "class_name" => $input->getArgument('bundle-name'),
@@ -120,7 +115,7 @@
                 ],
                 'readme' => [
                     $rootPath . '/readme.md',
-                    $this->original_path . 'bundle/readme.md',
+                    self::ORIGINAL_PATH . 'bundle/readme.md',
                     [
                         "name_space" => $rootNameSpace,
                         "class_name" => $input->getArgument('bundle-name'),
@@ -129,7 +124,7 @@
                 
                 'LICENSE' => [
                     $rootPath . '/LICENSE',
-                    $this->original_path . 'bundle/LICENSE',
+                    self::ORIGINAL_PATH . 'bundle/LICENSE',
                     [
                         "name_space" => $rootNameSpace,
                         "class_name" => $input->getArgument('bundle-name'),
@@ -139,7 +134,7 @@
                 # DependencyInjection Folder !!!
                 $input->getArgument('bundle-name') => [
                     $rootPath . '/src/DependencyInjection/' . $input->getArgument('bundle-name') . 'Extension.php',
-                    $this->original_path . 'bundle/DependencyInjection/NeoxBundleExtension.tpl.php',
+                    self::ORIGINAL_PATH . 'bundle/DependencyInjection/NeoxBundleExtension.tpl.php',
                     [
                         "name_space" => $rootNameSpace. '\\DependencyInjection',
                         "class_name" => $input->getArgument('bundle-name') . 'Extension',
@@ -147,7 +142,7 @@
                 ],
                 'configuration' => [
                     $rootPath . '/src/DependencyInjection/Configuration.php',
-                    $this->original_path . 'bundle/DependencyInjection/configuration.tpl.php',
+                    self::ORIGINAL_PATH . 'bundle/DependencyInjection/configuration.tpl.php',
                     [
                         "name_space" => $rootNameSpace . '\\DependencyInjection',
                         "class_name" => 'configuration',
@@ -157,7 +152,7 @@
                 # Resource Folder !!!
                 "service.xml"=> [
                     $rootPath . '/src/Resources/config/services.xml',
-                    $this->original_path . 'bundle/Resources/config/services.tpl.xml',
+                    self::ORIGINAL_PATH . 'bundle/Resources/config/services.tpl.xml',
                     [
                         "name_space" => $rootNameSpace . '\\Resources\\config',
                         "class_name" => $input->getArgument('bundle-name'),
@@ -165,7 +160,7 @@
                 ],
                 'services.yml' => [
                     $rootPath . '/src/Resources/config/services.yaml',
-                    $this->original_path . 'bundle/Resources/config/services.tpl.yaml.php',
+                    self::ORIGINAL_PATH . 'bundle/Resources/config/services.tpl.yaml.php',
                     [
                         "name_space" => $rootNameSpace,
                     ]
