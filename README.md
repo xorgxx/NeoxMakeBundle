@@ -6,9 +6,9 @@ Its main goal is to make it simple for you to manage integration additional tool
 Install the bundle for Composer !! as is still on beta version !!
 
 ````
-  composer require xorgxx/neox-make-bundle
+  composer require xorgxx/neox-make-bundle --dev
   or 
-  composer require xorgxx/neox-make-bundle:0.*
+  composer require xorgxx/neox-make-bundle:0.* --dev
 ````
 
 Make sure that is register the bundle in your AppKernel:
