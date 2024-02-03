@@ -32,6 +32,7 @@
     use Symfony\Component\Console\Input\InputOption;
     use Symfony\Component\Console\Question\Question;
     use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+    use Symfony\Component\Filesystem\Filesystem;
     use Symfony\Component\Form\AbstractType;
     use Symfony\Component\Process\Process;
     use Symfony\Component\Routing\Annotation\Route;
@@ -97,8 +98,18 @@
         
         public function generate(InputInterface $input, ConsoleStyle $io, Generator $generator): int
         {
+            $filesystem     = new Filesystem();
+            
             $rootPath       = $this->pathRepo . $input->getArgument('bundle-name') ;
             $rootNameSpace  = $input->getArgument('bundle-name') . '\\' . $input->getArgument('bundle-name') . 'Bundle' ;
+            
+            if (!$filesystem->exists($this->pathRepo)) {
+                // Si le dossier n'existe pas, créez-le
+                $filesystem->mkdir($this->pathRepo);
+                $io->success("The {$this->pathRepo} folder was created successfully.");
+            } else {
+                $io->success("The {$this->pathRepo} folder already exists.");
+            }
             
             # Bundle !!!
             $reusableBundle = [

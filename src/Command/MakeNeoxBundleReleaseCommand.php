@@ -41,34 +41,38 @@
             $question           = new ChoiceQuestion('Please choose the bundle you want to release:', $bundles);
             $question->setErrorMessage('Bundle %s does not exist.');
             $bundleName         = $this->getHelper('question')->ask($input, $output, $question);
-
-            // Vérifiez si le bundle existe
-//            if (!$this->bundleExists($bundleName)) {
-//                $output->writeln("Le bundle {$bundleName} n'existe pas.");
-//                return Command::FAILURE;
-//            }
             
-            // Demandez à l'utilisateur le nouvel emplacement du bundle
-            $question       = new Question("Please enter the new location for the bundle {$bundleName}: [../Repo/]", '../Repo/');
-            $newLocation    = $this->getHelper('question')->ask($input, $output, $question);
+            // ask action
+            $question           = new ChoiceQuestion('Select action :', ["Delete", "Release"]);
+            $action             = $this->getHelper('question')->ask($input, $output, $question);
             
-            // Déplacez le bundle vers le nouvel emplacement
             try {
-                $filesystem->rename("$this->pathRepo{$bundleName}", $newLocation . "/{$bundleName}");
-                $output->writeln("The bundle was successfully moved to {$newLocation}.");
+                if ($action === "Release") {
+                    // Ask the user for the new location of the bundle
+                    // Move the bundle to the new location
+                    $question       = new Question("Please enter the new location for the bundle {$bundleName}: [../Repo/]", '../Repo/');
+                    $newLocation    = $this->getHelper('question')->ask($input, $output, $question);
+                    $filesystem->rename("$this->pathRepo{$bundleName}", $newLocation . "/{$bundleName}");
+                    $output->writeln("The bundle was successfully moved to {$newLocation}.");
+                }
+                if ($action === "Delete") {
+                    $filesystem->remove("$this->pathRepo{$bundleName}");
+                    $output->writeln("The bundle was successfully removed.");
+                }
+              
             } catch (IOExceptionInterface $exception) {
                 $output->writeln("Error moving bundle: {$exception->getMessage()}");
                 return Command::FAILURE;
             }
             
-            // Supprimez les références du bundle dans config/bundles.php
+            // Remove bundle references in config/bundles.php
             // xorgXxxx\xorgXxxxBundle\xorgXxxxBundle
             $content        = file_get_contents(self::BUNDLES_FILE_PATH);
             $bundleClass    = "{$bundleName}\\{$bundleName}Bundle\\{$bundleName}Bundle";
             $content        = str_replace("{$bundleClass}::class => ['all' => true],\n", '', $content);
             file_put_contents(self::BUNDLES_FILE_PATH, $content, LOCK_EX);
             
-            // Supprimez les références du bundle dans composer.json
+            // Remove bundle references in composer.json
             // "xorgXxxx\\xorgXxxxBundle\\" : "Library/xorgXxxx/src/",
             $composerContent    = file_get_contents(self::COMPOSER_FILE_PATH);
             $composerClass      = "{$bundleName}\\\\{$bundleName}Bundle\\\\";
