@@ -14,7 +14,7 @@ Install the bundle for Composer !! as is still on beta version !!
 No configuration !!
 
 How to use in console ?
-``` symfony console neoxmake:generate:bundle ```
+``` symfony console neox:generate:bundle ```
 
 ```
    Name bundle to create without [bundle] in end --> NeoxReusable !!:
@@ -29,7 +29,11 @@ Enter bundle name you want to create without [bundle]  in end --> parlonCode not
 Enter yes if you want to create configuration. parlonsCode.yml
 
 that all !! it will generate for you all :
+## new command to Release reusable Bundle
 ```
+    symfony console neox:bundle:release
+```
+
 project
 │   assets
 │   bin
