@@ -32,6 +32,7 @@
     use Symfony\Component\Console\Input\InputOption;
     use Symfony\Component\Console\Question\Question;
     use Symfony\Component\Form\AbstractType;
+    use Symfony\Component\Process\Process;
     use Symfony\Component\Routing\Annotation\Route;
     use Symfony\Component\Security\Csrf\CsrfTokenManager;
     use Symfony\Component\Validator\Validation;
@@ -97,7 +98,6 @@
             $rootNameSpace  = $input->getArgument('bundle-name') . '\\' . $input->getArgument('bundle-name') . 'Bundle' ;
             
             # Bundle !!!
-            $rootNameSpace = $rootNameSpace;
             $reusableBundle = [
                 $input->getArgument('bundle-name'). 'Bundle' => [
                     $rootPath . '/src/' . $input->getArgument('bundle-name') . 'Bundle.php',
@@ -179,14 +179,17 @@
             $generator->writeChanges();
             $this->writeSuccessMessage($io);
 //            NeoxMake\NeoxMakeBundle\NeoxMakeBundle::class => ['all' => true],
-            $bundles = str_replace('/','\\', $rootNameSpace) . '\\' . $input->getArgument('bundle-name') . "bundle::class => ['all' => true]";
+            $this->addBundle(str_replace('/','\\', $rootNameSpace) . '\\' . $input->getArgument('bundle-name'). 'Bundle', $io );
+            
+//            $bundles = str_replace('/','\\', $rootNameSpace) . '\\' . $input->getArgument('bundle-name') . "bundle::class => ['all' => true]";
             $io->success('Dont forget to add in :');
-            $io->text(sprintf('config/Bundles.php <fg=yellow>%s</>', $bundles));
+//            $io->text(sprintf('config/Bundles.php <fg=yellow>%s</>', $bundles));
 //           "NeoxNotifier\\NeoxtifierBundle\\": "Library/NeoxtifierBundle/src/",
-            $composer = str_replace('"\\','\\\\', $rootNameSpace) . '\\\\" : "' . $rootPath . '/src/",';
-            $io->text(sprintf('composer.json -> autoload <fg=yellow>%s</>', $composer));
+            $composer = str_replace('\\','\\\\', $rootNameSpace) . '\\\\" : "' . $rootPath . '/src/"';
+            $this->addComposer($composer, $io);
+//            $io->text(sprintf('composer.json -> autoload <fg=yellow>%s</>', $composer));
 
-            $io->text(sprintf('Next: Check your new ReusableBundle by going to <fg=yellow>%s</>', $rootPath));
+            $io->text(sprintf('Next: c dump-autoload & Check your new ReusableBundle by going to <fg=yellow>%s</>', $rootPath));
             return Command::SUCCESS;
         }
         
@@ -227,5 +230,79 @@
 //            ParamConverter::class,
 //            'annotations'
 //        );
+        }
+        
+        private function addBundle(string $bundleClass, $io)
+        {
+            // Ajoutez votre bundle au tableau return dans config/bundles.php
+            $bundlesFilePath    = 'config/bundles.php';
+//            $bundleClass        = 'Mon\NomDeBundle\MonNomDeBundle';
+            
+            $content            = file_get_contents($bundlesFilePath);
+            
+            // Trouvez la position du tableau return
+            $returnPos          = strpos($content, 'return [');
+            
+            // Si la position du tableau return est trouvée
+            if ($returnPos !== false) {
+                // Trouvez la position de la fin du tableau return
+                $returnEndPos   = strpos($content, '];', $returnPos);
+                $tab = '    ';
+                // Ajoutez votre bundle à la fin du tableau return
+                $content        = substr_replace($content, "{$tab}{$bundleClass}::class => ['all' => true],\n", $returnEndPos, 0);
+                
+                // Enregistrez les modifications dans le fichier
+                file_put_contents($bundlesFilePath, $content, LOCK_EX);
+                
+                $io->text(sprintf("Le bundle <fg=yellow>%s</> a été ajouté avec succès.", $bundleClass));
+//                $output->writeln("Le bundle a été ajouté avec succès.");
+            } else {
+                $io->text(sprintf("Impossible de trouver le tableau return dans le fichier <fg=yellow>%s</>.", $bundleClass));
+//                $output->writeln("Impossible de trouver le tableau return dans le fichier {$bundlesFilePath}.");
+            }
+            
+            return Command::SUCCESS;
+        }
+        
+        private function addComposer(string $Composer, $io)
+        {
+            // Ajoutez la configuration autoload PSR-4 au fichier composer.json
+            $composerFilePath       = 'composer.json';
+            $psr4Config             = "     " . '"' . "$Composer";
+            
+            $content                = file_get_contents($composerFilePath);
+            
+            // Trouvez la position du "autoload" dans le fichier composer.json
+            $autoloadPos            = strpos($content, '"autoload"');
+            $autoloadPos            = strpos($content, '"psr-4"', $autoloadPos);
+            // Si la position du "autoload" est trouvée
+            if ($autoloadPos !== false) {
+                // Trouvez la position de la fin du "autoload"
+                $psr4EndPos = strpos($content, '{', $autoloadPos);
+                /**
+                 *  "autoload": {
+                 *      "psr-4": {
+                 *          "App\\": "src/",
+                 *          "Dorg\\DorgBundle\\" : "Library/Dorg/src/"
+                 *      }
+                 *  },
+                 */
+                // Ajoutez la configuration PSR-4 à la fin du "autoload"
+//                $content = substr_replace($content, "{$psr4Config}", $autoloadEndPos, 0);
+                // Ajoutez une virgule à la fin de la ligne précédente dans le "psr-4"
+                
+                $content = substr_replace($content, "\n        {$psr4Config},", $psr4EndPos+1, 0);
+                // Enregistrez les modifications dans le fichier
+                file_put_contents($composerFilePath, $content);
+                
+                $process = new Process(['composer', 'dump-autoload']);
+                $process->run();
+                
+                $io->writeln("La configuration autoload PSR-4 a été ajoutée avec succès. la commande composer dump-autoload validé");
+            } else {
+                $io->writeln("Impossible de trouver la section 'autoload' dans le fichier {$composerFilePath}.");
+            }
+            
+            return Command::SUCCESS;
         }
     }
