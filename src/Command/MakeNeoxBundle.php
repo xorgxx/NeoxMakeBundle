@@ -15,6 +15,7 @@
     use Doctrine\Bundle\DoctrineBundle\DoctrineBundle;
     use Doctrine\Inflector\Inflector;
     use Doctrine\Inflector\InflectorFactory;
+    use NeoxMake\NeoxMakeBundle\Command\Helper\ToolsHelper;
     use NeoxMake\NeoxMakeBundle\Utils\ValidatorCommand;
     use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
     use Symfony\Bundle\MakerBundle\ConsoleStyle;
@@ -44,19 +45,15 @@
      */
     final class MakeNeoxBundle extends AbstractMaker
     {
-        private const BUNDLES_FILE_PATH     = 'config/bundles.php';
-        private const COMPOSER_FILE_PATH    = 'composer.json';
         private const ORIGINAL_PATH         = 'vendor/xorgxx/neox-make-bundle/src/Resources/skeleton/';
         private bool $generateConfiguration = false;
-        
         private string $original_path       = "vendor/xorgxx/neox-make-bundle/src/Resources/skeleton/";
+        public ToolsHelper $toolsHelper;
         
-        public function __construct(ParameterBagInterface $parameterBag)
+        public function __construct( ToolsHelper $toolsHelper )
         {
-            $this->parameterBag = $parameterBag;
-            $this->pathRepo     = $parameterBag->get('neox_make.directory_bundle');
-            // Appel du constructeur parent avec le nom de la commande
-//            parent::__construct('neoxmake:generate:bundle');
+            $this->toolsHelper  = $toolsHelper;
+            $this->pathRepo     = $this->toolsHelper->pathRepo; 
         }
         
         public static function getCommandName(): string
@@ -98,87 +95,83 @@
         
         public function generate(InputInterface $input, ConsoleStyle $io, Generator $generator): int
         {
-            $filesystem     = new Filesystem();
+
+            $bundleBag = $this->toolsHelper->getBundleNameConvert($input->getArgument('bundle-name'));
             
-            $rootPath       = $this->pathRepo . $input->getArgument('bundle-name') ;
-            $rootNameSpace  = $input->getArgument('bundle-name') . '\\' . $input->getArgument('bundle-name') . 'Bundle' ;
-            
-            if (!$filesystem->exists($this->pathRepo)) {
-                // Si le dossier n'existe pas, créez-le
-                $filesystem->mkdir($this->pathRepo);
-                $io->success("The {$this->pathRepo} folder was created successfully.");
-            } else {
-                $io->success("The {$this->pathRepo} folder already exists.");
-            }
+            # Folder !!!
+            $io->success($this->toolsHelper->setFolderRepo());
             
             # Bundle !!!
             $reusableBundle = [
                 $input->getArgument('bundle-name'). 'Bundle' => [
-                    $rootPath . '/src/' . $input->getArgument('bundle-name') . 'Bundle.php',
+                    $bundleBag["rootPath"] . '/src/' . $input->getArgument('bundle-name') . 'Bundle.php',
                     self::ORIGINAL_PATH . 'bundle/neoxBundle.tpl.php',
                     [
-                        "name_space" => $rootNameSpace,
+                        "name_space" => $bundleBag["rootNameSpace"],
                         "class_name" => $input->getArgument('bundle-name') . 'Bundle',
                     ]
                 ],
                 'composer' => [
-                    $rootPath . '/composer.json',
+                    $bundleBag["rootPath"] . '/composer.json',
                     self::ORIGINAL_PATH . 'bundle/composer.json.tpl.php',
                     [
-                        "name_space" => str_replace('/','\\\\', $rootNameSpace) . '\\\\',
+                        "name_space" => str_replace('/','\\\\', $bundleBag["rootNameSpace"]) . '\\\\',
                         "class_name" => $input->getArgument('bundle-name'),
                     ]
                 ],
                 'readme' => [
-                    $rootPath . '/readme.md',
+                    $bundleBag["rootPath"] . '/readme.md',
                     self::ORIGINAL_PATH . 'bundle/readme.md',
                     [
-                        "name_space" => $rootNameSpace,
+                        "name_space" => $bundleBag["rootNameSpace"],
                         "class_name" => $input->getArgument('bundle-name'),
                     ]
                 ],
                 
                 'LICENSE' => [
-                    $rootPath . '/LICENSE',
+                    $bundleBag["rootPath"] . '/LICENSE',
                     self::ORIGINAL_PATH . 'bundle/LICENSE',
                     [
-                        "name_space" => $rootNameSpace,
+                        "name_space" => $bundleBag["rootNameSpace"],
                         "class_name" => $input->getArgument('bundle-name'),
                     ]
                 ],
                 
                 # DependencyInjection Folder !!!
+                
                 $input->getArgument('bundle-name') => [
-                    $rootPath . '/src/DependencyInjection/' . $input->getArgument('bundle-name') . 'Extension.php',
+                    $bundleBag["rootPath"] . '/src/DependencyInjection/' . $input->getArgument('bundle-name') . 'Extension.php',
                     self::ORIGINAL_PATH . 'bundle/DependencyInjection/NeoxBundleExtension.tpl.php',
                     [
-                        "name_space" => $rootNameSpace. '\\DependencyInjection',
-                        "class_name" => $input->getArgument('bundle-name') . 'Extension',
+                        "config_yaml"   => $bundleBag["configName"],
+                        "name_space"    => $bundleBag["rootNameSpace"]. '\\DependencyInjection',
+                        "class_name"    => $input->getArgument('bundle-name') . 'Extension',
                     ]
                 ],
                 'configuration' => [
-                    $rootPath . '/src/DependencyInjection/Configuration.php',
+                    $bundleBag["rootPath"] . '/src/DependencyInjection/Configuration.php',
                     self::ORIGINAL_PATH . 'bundle/DependencyInjection/configuration.tpl.php',
                     [
-                        "name_space" => $rootNameSpace . '\\DependencyInjection',
-                        "class_name" => 'configuration',
+                        "config_yaml"   => $bundleBag["configName"],
+                        "name_space"    => $bundleBag["rootNameSpace"] . '\\DependencyInjection',
+                        "class_name"    => 'configuration',
                     ]
                 ],
                 
                 # Resource Folder !!!
                 "service.xml"=> [
-                    $rootPath . '/src/Resources/config/services.xml',
+                    $bundleBag["rootPath"] . '/src/Resources/config/services.xml',
                     self::ORIGINAL_PATH . 'bundle/Resources/config/services.tpl.xml',
                     [
-                        "name_space" => $rootNameSpace . '\\Resources\\config',
+                        "name_space" => $bundleBag["rootNameSpace"] . '\\Resources\\config',
                         "class_name" => $input->getArgument('bundle-name'),
                     ]
                 ],
                 'services.yml' => [
-                    $rootPath . '/src/Resources/config/services.yaml',
+                    $bundleBag["rootPath"] . '/src/Resources/config/services.yaml',
                     self::ORIGINAL_PATH . 'bundle/Resources/config/services.tpl.yaml.php',
                     [
-                        "name_space" => $rootNameSpace,
+                        "name_space" => $bundleBag["rootNameSpace"],
                     ]
                 ],
             ];
@@ -194,15 +187,11 @@
             $this->writeSuccessMessage($io);
             $io->success('Dont forget to add in :');
             
-            // NeoxMake\NeoxMakeBundle\NeoxMakeBundle::class => ['all' => true],
-            $bundle = str_replace('/','\\', $rootNameSpace) . '\\' . $input->getArgument('bundle-name'). 'Bundle';
-            $this->addBundle( $bundle, $io );
+            $this->toolsHelper->setBundlePhp($input->getArgument('bundle-name'));
             
-            // "NeoxNotifier\\NeoxtifierBundle\\": "Library/NeoxtifierBundle/src/",
-            $composer = str_replace('\\','\\\\', $rootNameSpace) . '\\\\" : "' . $rootPath . '/src/"';
-            $this->addComposer($composer, $io);
+            $this->toolsHelper->setComposerJson( $bundleBag );
             
-            $io->text(sprintf('Next: c dump-autoload & Check your new ReusableBundle by going to <fg=yellow>%s</>', $rootPath));
+            $io->text(sprintf('Next: c dump-autoload & Check your new ReusableBundle by going to <fg=yellow>%s</>', $bundleBag["rootPath"]));
             return Command::SUCCESS;
         }
         
@@ -245,62 +234,4 @@
 //        );
         }
         
-        private function addBundle(string $bundleClass, $io): void
-        {
-            // Ajoutez votre bundle au tableau return dans config/bundles.php
-            $content = file_get_contents(self::BUNDLES_FILE_PATH);
-            
-            // Trouvez la position du tableau return
-            $returnPos = strpos($content, 'return [');
-            
-            // Si la position du tableau return est trouvée
-            if ($returnPos !== false) {
-                // Trouvez la position de la fin du tableau return
-                $returnEndPos   = strpos($content, '];', $returnPos);
-                
-                // Ajoutez votre bundle à la fin du tableau return
-                $tab = '    ';
-                $newBundleLine  = sprintf("%s%s::class => ['all' => true],\n", $tab, $bundleClass);
-                $content        = substr_replace($content, $newBundleLine, $returnEndPos, 0);
-                
-                // Enregistrez les modifications dans le fichier
-                file_put_contents(self::BUNDLES_FILE_PATH, $content, LOCK_EX);
-                
-                $io->text(sprintf("Bundle <fg=yellow>%s</> was added successfully.", $bundleClass));
-            } else {
-                $io->text(sprintf("Unable to find return array in file <fg=yellow>%s</>.", $bundleClass));
-            }
-            
-        }
-        
-        private function addComposer(string $composer, $io): void
-        {
-            // Ajoutez la configuration autoload PSR-4 au fichier composer.json
-            $content = file_get_contents(self::COMPOSER_FILE_PATH);
-            
-            // Trouvez la position du "autoload" dans le fichier composer.json
-            $autoloadPos = strpos($content, '"autoload"');
-            $autoloadPos = strpos($content, '"psr-4"', $autoloadPos);
-            
-            // Si la position du "autoload" est trouvée
-            if ($autoloadPos !== false) {
-                // Trouvez la position de la fin du "autoload"
-                $psr4EndPos = strpos($content, '{', $autoloadPos);
-                
-                // Ajoutez la configuration PSR-4 à la fin du "autoload"
-                $psr4Config = "     \"$composer,";
-                $content = substr_replace($content, "\n       $psr4Config", $psr4EndPos + 1, 0);
-                
-                // Enregistrez les modifications dans le fichier
-                file_put_contents(self::COMPOSER_FILE_PATH, $content);
-                
-                $process = new Process(['composer', 'dump-autoload']);
-                $process->run();
-                
-                $io->writeln("PSR-4 autoload configuration has been added successfully. The composer dump-autoload command has been validated.");
-            } else {
-                $io->writeln("Cannot find 'autoload' section in file" . self::COMPOSER_FILE_PATH);
-            }
-            
-        }
     }

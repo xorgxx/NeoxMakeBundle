@@ -31,16 +31,20 @@ services:
         public: true
         arguments:
             - Symfony\Contracts\Translation\TranslatorInterface
-            
-    app.ValidatorCommand:
-        class: NeoxMake\NeoxMakeBundle\Utils\ValidatorCommand
-        
-    app.maker.neox.make_bundle:
-        class: NeoxMake\NeoxMakeBundle\Command\MakeNeoxBundle
+    
+    NeoxMake\NeoxMakeBundle\Command\Helper\ToolsHelper:
         arguments:
             - '@Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface'
-        tags:
-            - { name: maker.command }
+        
+#    app.ValidatorCommand:
+#        class: NeoxMake\NeoxMakeBundle\Utils\ValidatorCommand
+#
+#    app.maker.neox.make_bundle:
+#        class: NeoxMake\NeoxMakeBundle\Command\MakeNeoxBundle
+#        arguments:
+#            - '@NeoxMake\NeoxMakeBundle\Command\Helper\ToolsHelper;'
+#        tags:
+#            - { name: maker.command }
             
             
     app.maker.neox.make_crud:

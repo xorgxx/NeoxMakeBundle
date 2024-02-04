@@ -15,32 +15,20 @@ use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 /**
- * @author Jesse Rushlow <jr@rushlow.dev>
- * @author Ryan Weaver   <ryan@symfonycasts.com>
+ * @author xorg <xorg@i2p.i2p>
  */
 final class Configuration implements ConfigurationInterface
 {
     public function getConfigTreeBuilder(): TreeBuilder
     {
-        $treeBuilder = new TreeBuilder('neox_make');
+        $treeBuilder = new TreeBuilder('<?= $config_yaml; ?>');
         /** @var ArrayNodeDefinition $rootNode */
         $rootNode = $treeBuilder->getRootNode();
         
         $rootNode
             ->addDefaultsIfNotSet()
             ->children()
-                ->arrayNode('table')
-                    ->children()
-                        ->scalarNode('path_js_bs-datatable')
-                            ->defaultValue("build/canvas/js/components/bs-datatable.js")
-                            ->info('Path to JS file bs-datatable.js. (bootstrap5)')
-                        ->end()
-                        ->scalarNode('path_css_bs-datatable')
-                            ->defaultValue("build/canvas/css/components/bs-datatable.css")
-                            ->info('Path to CSS file bs-datatable.css. (bootstrap5)')
-                        ->end()
-                    ->end()
-                ->end()
+                ->scalarNode('directory_bundle')->defaultValue("Library/")->end()
             ->end()
         ;
 

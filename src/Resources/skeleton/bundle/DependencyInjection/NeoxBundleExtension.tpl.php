@@ -27,7 +27,7 @@
 
             // set key config as container parameters
             //foreach ($config as $key => $value) {
-            //    $container->setParameter('neox_seo.'.$key, $value);
+            //    $container->setParameter( <?= $config_yaml; ?>. '.' . $key, $value);
             //}
 		}
 	}
