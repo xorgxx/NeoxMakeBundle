@@ -18,7 +18,12 @@ How to use in console ?
 
 ```
    Name bundle to create without [bundle] in end --> NeoxReusable !!:
-   >
+   > *
+   
+   * rule of naming : (camelCase)
+   xorg         = "Xorg\\XorgBundle\\" : "reusableBundle/xorg-bundle/src/",
+   neoxXorg     = "neoxXorg\\neoxXorgBundle\\" : "reusableBundle/neox-xorg-bundle/src/",
+   neoxXorgTest = "neoxXorgTest\\neoxXorgTestBundle\\" : "reusableBundle/neox-xorg-test-bundle/src/",
 ```
 Enter bundle name you want to create without [bundle]  in end --> parlonCode not paelonsCodeBundle !!
 
