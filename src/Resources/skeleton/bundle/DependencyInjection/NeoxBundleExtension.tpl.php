@@ -26,8 +26,15 @@
             $config         = $this->processConfiguration($configuration, $configs);
 
             // set key config as container parameters
+<?php if ($config): ?>
+            foreach ($config as $key => $value) {
+                $container->setParameter( '<?= $config_yaml; ?>.' . $key, $value);
+            }
+<?php else: ?>
             //foreach ($config as $key => $value) {
-            //    $container->setParameter( <?= $config_yaml; ?>. '.' . $key, $value);
+            //    $container->setParameter( '<?= $config_yaml; ?>.' . $key, $value);
             //}
+<?php endif ?>
+        
 		}
 	}

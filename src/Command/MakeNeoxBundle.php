@@ -46,7 +46,7 @@
     final class MakeNeoxBundle extends AbstractMaker
     {
         private const ORIGINAL_PATH         = 'vendor/xorgxx/neox-make-bundle/src/Resources/skeleton/';
-        private bool $generateConfiguration = false;
+//        private bool $generateConfiguration = false;
         private string $original_path       = "vendor/xorgxx/neox-make-bundle/src/Resources/skeleton/";
         public ToolsHelper $toolsHelper;
         
@@ -83,12 +83,18 @@
                 $argument = $command->getDefinition()->getArgument('bundle-name');
                 $question = new Question($argument->getDescription());
                 $value = $io->askQuestion($question);
+                while (empty(trim($value))) {
+                    $io->error('Le nom du bundle ne peut pas être vide.');
+                    $value = $io->askQuestion($question);
+                }
+                
                 $input->setArgument('bundle-name', $value);
             }
             
             if (false === $input->getOption('configure')) {
-                $argument = $command->getDefinition()->getOption('configure');
-                $this->generateConfiguration = $io->confirm($argument->getDescription(), false);
+                $argument   = $command->getDefinition()->getOption('configure');
+                $value      = $io->confirm($argument->getDescription(), false);
+                $input->setOption('configure', $value);
 //                $this->validatorCommand->checkBool($this->generateConfiguration);
             }
         }
@@ -146,6 +152,7 @@
                         "config_yaml"   => $bundleBag["configName"],
                         "name_space"    => $bundleBag["rootNameSpace"]. '\\DependencyInjection',
                         "class_name"    => $input->getArgument('bundle-name') . 'Extension',
+                        "config"        => $input->getOption('configure')
                     ]
                 ],
                 'configuration' => [
