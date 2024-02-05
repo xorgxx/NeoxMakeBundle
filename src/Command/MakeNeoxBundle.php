@@ -164,7 +164,7 @@
                     []
                 ],
                 'tests-service' => [
-                    $directoryBundle . 'src/Services/TestService.php',
+                    $directoryBundle . '/src/Services/TestService.php',
                     self::ORIGINAL_PATH . 'bundle/Services/TestService.tpl.php',
                     [
                         "name_space" => $bundleBag["rootNameSpace"],
