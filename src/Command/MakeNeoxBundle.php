@@ -58,7 +58,7 @@
         
         public static function getCommandName(): string
         {
-            return 'neoxmake:generate:bundle';
+            return 'neoxmake:bundle:generate';
         }
         
         public static function getCommandDescription(): string

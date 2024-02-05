@@ -105,21 +105,28 @@
             $bundleNameSnake    = $this->toCamelCase( $bundleBag["bundleName"] );
             $bundleName_        = str_replace("Bundle", "", $bundleNameSnake);
             $content            = file_get_contents(self::COMPOSER_FILE_PATH);
-            $composerClass      = "{$bundleName_}\\\\{$bundleNameSnake}\\\\";
+            $composerClass      = "{$bundleName_}\\{$bundleNameSnake}\\";
+            
+            $content            =   json_decode($content, true);
             
             if ($mode !== "add") {
                 $bundleNameSnake    = $this->toCamelCase( $bundleBag["bundleNameOrig"] );
-                $composerClass      = "{$bundleName_}\\\\{$bundleNameSnake}\\\\";
-                $content            = str_replace("\"{$composerClass}\" : \"{$bundleBag['dirComposer']}/src/\",", '', $content);
+                $composerClass      = "{$bundleName_}\\{$bundleNameSnake}\\";
+                if (isset($content['autoload']['psr-4'][$composerClass])) {
+                    unset($content['autoload']['psr-4'][$composerClass]);
+                    if ($content === false) {
+                        throw new \RuntimeException('Erreur lors de l\'encodage JSON.');
+                    }
+                }
+                
             } else {
-                $autoloadPos        = strpos($content, '"autoload"');
-                $autoloadPos        = strpos($content, '"psr-4"', $autoloadPos);
-                $psr4EndPos         = strpos($content, '{', $autoloadPos);
-                $composer           = str_replace('\\','\\\\', $bundleBag["rootNameSpace"]) . '\\\\" : "' . $bundleBag["rootPath"] . '/src/"';
-                $psr4Config         = "     \"$composer,";
-                $content            = substr_replace($content, "\n       $psr4Config", $psr4EndPos + 1, 0);
+                if (!isset($content['autoload']['psr-4'][$composerClass])) {
+                    $directory  = "{$bundleBag["rootPath"]}/src/";
+                    $content['autoload']['psr-4'][$composerClass] = $directory;
+                }
             }
             
+            $content    = json_encode($content, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
             file_put_contents(self::COMPOSER_FILE_PATH, $content, LOCK_EX);
             
             $process = (new Process(['composer', 'dump-autoload']))->run();
