@@ -53,11 +53,11 @@
                     // Move the bundle to the new location
                     $question       = new Question("Please enter the new location for the bundle {$bundleName}: [../Repo/]", '../Repo/');
                     $newLocation    = $this->getHelper('question')->ask($input, $output, $question);
-                    $this->toolsHelper->setMoveBundle($bundleName, $newLocation);
+                    $this->toolsHelper->setMoveBundle($bundleBag, $newLocation);
                     $output->writeln("The bundle was successfully moved to {$newLocation}.");
                 }
                 if ($action === "Delete") {
-                    $this->toolsHelper->setRemoveBundle("$this->pathRepo{$bundleName}");
+                    $this->toolsHelper->setRemoveBundle($bundleBag);
                     $output->writeln("The bundle was successfully removed.");
                 }
               
@@ -68,7 +68,7 @@
             
             // Remove bundle references in config/bundles.php
             // xorgXxxx\xorgXxxxBundle\xorgXxxxBundle
-            $this->toolsHelper->setBundlePhp($bundleName, "release");
+            $this->toolsHelper->setBundlePhp($bundleBag, "release");
             
             // Remove bundle references in composer.json
             // "xorgXxxx\\xorgXxxxBundle\\" : "Library/xorgXxxx/src/",

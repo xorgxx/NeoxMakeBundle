@@ -107,10 +107,11 @@
             # Folder !!!
             $io->success($this->toolsHelper->setFolderRepo());
             
+            $directoryBundle = $bundleBag["pathRepo"] . $bundleBag["bundleName"] ;
             # Bundle !!!
             $reusableBundle = [
                 $input->getArgument('bundle-name'). 'Bundle' => [
-                    $bundleBag["rootPath"] . '/src/' . $input->getArgument('bundle-name') . 'Bundle.php',
+                    $directoryBundle . '/src/' . $input->getArgument('bundle-name') . 'Bundle.php',
                     self::ORIGINAL_PATH . 'bundle/neoxBundle.tpl.php',
                     [
                         "name_space" => $bundleBag["rootNameSpace"],
@@ -118,15 +119,15 @@
                     ]
                 ],
                 'composer' => [
-                    $bundleBag["rootPath"] . '/composer.json',
+                    $directoryBundle . '/composer.json',
                     self::ORIGINAL_PATH . 'bundle/composer.json.tpl.php',
                     [
-                        "name_space" => str_replace('/','\\\\', $bundleBag["rootNameSpace"]) . '\\\\',
-                        "class_name" => $input->getArgument('bundle-name'),
+                        "name_space"    => $bundleBag["composerNameSpace"],
+                        "name_composer" => $bundleBag["NameComposer"],
                     ]
                 ],
                 'readme' => [
-                    $bundleBag["rootPath"] . '/readme.md',
+                    $directoryBundle . '/readme.md',
                     self::ORIGINAL_PATH . 'bundle/readme.md',
                     [
                         "name_space" => $bundleBag["rootNameSpace"],
@@ -135,31 +136,57 @@
                 ],
                 
                 'LICENSE' => [
-                    $bundleBag["rootPath"] . '/LICENSE',
+                    $directoryBundle . '/LICENSE',
                     self::ORIGINAL_PATH . 'bundle/LICENSE',
                     [
                         "name_space" => $bundleBag["rootNameSpace"],
                         "class_name" => $input->getArgument('bundle-name'),
                     ]
                 ],
-                
+                'tests-bootstrap' => [
+                    $directoryBundle . '/tests/bootstrap.php',
+                    self::ORIGINAL_PATH . 'bundle/tests/bootstrap.tpl.php',
+                    []
+                ],
+                'tests-Exemple' => [
+                    $directoryBundle . '/tests/ExampleTest.php',
+                    self::ORIGINAL_PATH . 'bundle/tests/ExampleTest.tpl.php',
+                    []
+                ],
+                'tests-Pest' => [
+                    $directoryBundle . '/tests/Pest.php',
+                    self::ORIGINAL_PATH . 'bundle/tests/Pest.tpl.php',
+                    []
+                ],
+                'tests-phpunit' => [
+                    $directoryBundle . '/phpunit.xml.dist',
+                    self::ORIGINAL_PATH . 'bundle/phpunit.tpl.dist',
+                    []
+                ],
+                'tests-service' => [
+                    $directoryBundle . 'src/Services/TestService.php',
+                    self::ORIGINAL_PATH . 'bundle/Services/TestService.tpl.php',
+                    [
+                        "name_space" => $bundleBag["rootNameSpace"],
+                    ]
+                ],
                 # DependencyInjection Folder !!!
                 
                 $input->getArgument('bundle-name') => [
-                    $bundleBag["rootPath"] . '/src/DependencyInjection/' . $input->getArgument('bundle-name') . 'Extension.php',
+                    $directoryBundle . '/src/DependencyInjection/' . $input->getArgument('bundle-name') . 'Extension.php',
                     self::ORIGINAL_PATH . 'bundle/DependencyInjection/NeoxBundleExtension.tpl.php',
                     [
-                        "config_yaml"   => $bundleBag["configName"],
+                        "config_yaml"   => $bundleBag["NameYaml"],
                         "name_space"    => $bundleBag["rootNameSpace"]. '\\DependencyInjection',
                         "class_name"    => $input->getArgument('bundle-name') . 'Extension',
                         "config"        => $input->getOption('configure')
                     ]
                 ],
                 'configuration' => [
-                    $bundleBag["rootPath"] . '/src/DependencyInjection/Configuration.php',
+                    $directoryBundle . '/src/DependencyInjection/Configuration.php',
                     self::ORIGINAL_PATH . 'bundle/DependencyInjection/configuration.tpl.php',
                     [
-                        "config_yaml"   => $bundleBag["configName"],
+                        "config_yaml"   => $bundleBag["NameYaml"],
                         "name_space"    => $bundleBag["rootNameSpace"] . '\\DependencyInjection',
                         "class_name"    => 'configuration',
                     ]
@@ -167,7 +194,7 @@
                 
                 # Resource Folder !!!
                 "service.xml"=> [
-                    $bundleBag["rootPath"] . '/src/Resources/config/services.xml',
+                    $directoryBundle . '/src/Resources/config/services.xml',
                     self::ORIGINAL_PATH . 'bundle/Resources/config/services.tpl.xml',
                     [
                         "name_space" => $bundleBag["rootNameSpace"] . '\\Resources\\config',
@@ -175,7 +202,7 @@
                     ]
                 ],
                 'services.yml' => [
-                    $bundleBag["rootPath"] . '/src/Resources/config/services.yaml',
+                    $directoryBundle . '/src/Resources/config/services.yaml',
                     self::ORIGINAL_PATH . 'bundle/Resources/config/services.tpl.yaml.php',
                     [
                         "name_space" => $bundleBag["rootNameSpace"],
@@ -194,11 +221,11 @@
             $this->writeSuccessMessage($io);
             $io->success('Dont forget to add in :');
             
-            $this->toolsHelper->setBundlePhp($input->getArgument('bundle-name'));
-            
+            $this->toolsHelper->setBundlePhp( $bundleBag );
+//            
             $this->toolsHelper->setComposerJson( $bundleBag );
             
-            $io->text(sprintf('Next: c dump-autoload & Check your new ReusableBundle by going to <fg=yellow>%s</>', $bundleBag["rootPath"]));
+            $io->text(sprintf('Next: c dump-autoload & Check your new ReusableBundle by going to <fg=yellow>%s</>', $directoryBundle));
             return Command::SUCCESS;
         }
         

@@ -24,16 +24,24 @@
         
         public function getBundleNameConvert(string $bundleNameOrig): array
         {
-            $bundleName    = strtolower($this->camelCaseToSeparated( $bundleNameOrig . 'Bundle', '-'));
+            $bundleNameOrig = str_replace('Bundle', "",$bundleNameOrig);
+            $bundleName     = $bundleNameOrig . 'Bundle';
             
             return [
-                "bundleNameOrig" => $bundleNameOrig,
-                "bundleName"     => $bundleName,
-                "configName"     => strtolower($this->camelCaseToSeparated( $bundleNameOrig, '_')),
-                "rootPath"       => $this->pathRepo . $bundleName,
-                "rootNameSpace"  => $bundleNameOrig . '\\' . $bundleNameOrig . 'Bundle',
-                "pathRepo"       => $this->pathRepo,
-                "dirComposer"    => $this->pathRepo . strtolower($this->camelCaseToSeparated( $bundleNameOrig, '-')),
+                // NeoxXorg
+                "bundleNameOrig"        => $bundleNameOrig,
+                // NeoxXorgBundle
+                "bundleName"            => $bundleName,
+                // neox_xorg
+                "NameYaml"              => strtolower($this->camelCaseToSeparated( $bundleNameOrig, '_')),
+                // neox-xorg-bundle
+                "NameComposer"          => strtolower($this->camelCaseToSeparated( $bundleNameOrig, '-') . '-bundle'),
+                // NeoxXorg\\NeoxXorgBundle\\
+                "composerNameSpace"     => $bundleNameOrig . '\\' . $bundleName . '\\',
+                // NeoxXorg\NeoxXorgBundle
+                "rootNameSpace"         => $bundleNameOrig . '\\' . $bundleName,
+                // reusableBundle/
+                "pathRepo"              => $this->pathRepo,
             ];
  
         }
@@ -50,6 +58,7 @@
             
             return $r;
         }
+        
         public function getBundles()
         {
             $bundles = [];
@@ -68,31 +77,28 @@
         
         /**
          */
-        public function setMoveBundle(string $bundleName, string $newLocation): bool
+        public function setMoveBundle(array $bundleBag, string $newLocation): bool
         {
-            $filesystem  = new Filesystem();
-            $filesystem->rename("$this->pathRepo{$bundleName}", $newLocation . "/{$bundleName}");
+            $path           = $bundleBag["pathRepo"] . $bundleBag["bundleName"];
+            $filesystem     = new Filesystem();
+            $filesystem->rename($path, $newLocation . "/{$bundleBag["bundleName"]}");
             return true;
         }
         
-        public function setBundlePhp(string $bundleName, string $mode = "add") : bool
+        public function setBundlePhp(array $bundleName, string $mode = "add") : bool
         {
             // xorgXxxx\xorgXxxxBundle\xorgXxxxBundle
-            
-            $bundleNameSnake    = $this->toCamelCase( $bundleName );
-            $bundleName_        = str_replace("Bundle", "", $bundleNameSnake);
+            $nameSpaceBundle    = $bundleName["rootNameSpace"] . '\\' . $bundleName["bundleName"];
             $content            = file_get_contents(self::BUNDLES_FILE_PATH);
             
             if ($mode !== "add") {
                 // neoxXorg\neoxXorgBundle\neoxXorgBundle::class => ['all' => true],
-                $bundleClass        = "{$bundleName_}\\{$bundleNameSnake}\\{$bundleNameSnake}";
-                $content            = str_replace("{$bundleClass}::class => ['all' => true],\n", '', $content);
+                $content            = str_replace("\t{$nameSpaceBundle}::class => ['all' => true],", '', $content);
             } else {
-                $bundleClass        = "{$bundleName_}\\{$bundleNameSnake}Bundle\\{$bundleNameSnake}Bundle";
+//                $bundleClass        = "{$bundleName_}\\{$bundleName}Bundle\\{$bundleName}Bundle";
                 $returnPos          = strpos($content, 'return [');
                 $returnEndPos       = strpos($content, '];', $returnPos);
-                $tab                = '    ';
-                $newBundleLine      = sprintf("%s%s::class => ['all' => true],\n", $tab, $bundleClass);
+                $newBundleLine      = sprintf("\t%s::class => ['all' => true],\n", $nameSpaceBundle);
                 $content            = substr_replace($content, $newBundleLine, $returnEndPos, 0);
             }
 
@@ -102,27 +108,36 @@
         public function setComposerJson(array $bundleBag, string $mode = "add") : bool
         {
             // xorgXxxx\xorgXxxxBundle\xorgXxxxBundle
-            $bundleNameSnake    = $this->toCamelCase( $bundleBag["bundleName"] );
-            $bundleName_        = str_replace("Bundle", "", $bundleNameSnake);
+//            $bundleNameSnake    = $this->toCamelCase( $bundleBag["bundleName"] );
+//            $bundleName_        = str_replace("Bundle", "", $bundleNameSnake);
+            $nameSpaceBundle    = $bundleBag["rootNameSpace"]."\\";
             $content            = file_get_contents(self::COMPOSER_FILE_PATH);
-            $composerClass      = "{$bundleName_}\\{$bundleNameSnake}\\";
+//            $composerClass      = "{$bundleName_}\\{$bundleBag["bundleName"]}\\";
             
             $content            =   json_decode($content, true);
             
             if ($mode !== "add") {
-                $bundleNameSnake    = $this->toCamelCase( $bundleBag["bundleNameOrig"] );
-                $composerClass      = "{$bundleName_}\\{$bundleNameSnake}\\";
-                if (isset($content['autoload']['psr-4'][$composerClass])) {
-                    unset($content['autoload']['psr-4'][$composerClass]);
+                if (isset($content['autoload']['psr-4'][$nameSpaceBundle])) {
+                    unset($content['autoload']['psr-4']["$nameSpaceBundle"]);
+                    if ($content === false) {
+                        throw new \RuntimeException('Erreur lors de l\'encodage JSON.');
+                    }
+                }
+                if (isset($content['autoload-dev']['psr-4'][$nameSpaceBundle.'Tests\\'])) {
+                    unset($content['autoload-dev']['psr-4'][$nameSpaceBundle.'Tests\\']);
                     if ($content === false) {
                         throw new \RuntimeException('Erreur lors de l\'encodage JSON.');
                     }
                 }
                 
             } else {
-                if (!isset($content['autoload']['psr-4'][$composerClass])) {
-                    $directory  = "{$bundleBag["rootPath"]}/src/";
-                    $content['autoload']['psr-4'][$composerClass] = $directory;
+                $directory  = "{$bundleBag["pathRepo"]}{$bundleBag["bundleName"]}/src/";
+                if (!isset($content['autoload']['psr-4'][$nameSpaceBundle])) {
+                    $content['autoload']['psr-4'][$nameSpaceBundle] = $directory;
+                }
+//                "neoxXorg\\neoxXorgBundle\\Tests\\": "reusableBundle/neox-xorg-bundle/tests/"
+                if (!isset($content['autoload-dev']['psr-4'][$nameSpaceBundle.'Tests\\'])) {
+                    $content['autoload-dev']['psr-4'][$nameSpaceBundle.'Tests\\'] = $directory;
                 }
             }
             
@@ -136,10 +151,11 @@
         
         /**
          */
-        public function setRemoveBundle(string $bundleName): bool
-        {
-            $filesystem  = new Filesystem();
-            $filesystem->remove($bundleName);
+        public function setRemoveBundle(array $bundleBag): bool
+        {   
+            $path           = $bundleBag["pathRepo"] . $bundleBag["bundleName"]; 
+            $filesystem     = new Filesystem();
+            $filesystem->remove($path);
             return true;
         }
         

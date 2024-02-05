@@ -21,9 +21,9 @@ How to use in console ?
    > *
    
    * rule of naming : (camelCase)
-   xorg         = "Xorg\\XorgBundle\\" : "reusableBundle/xorg-bundle/src/",
-   neoxXorg     = "neoxXorg\\neoxXorgBundle\\" : "reusableBundle/neox-xorg-bundle/src/",
-   neoxXorgTest = "neoxXorgTest\\neoxXorgTestBundle\\" : "reusableBundle/neox-xorg-test-bundle/src/",
+   Xorg         = "Xorg\\XorgBundle\\" : "reusableBundle/XorgBundle/src/",
+   neoxXorg     = "neoxXorg\\neoxXorgBundle\\" : "reusableBundle/neoxXorgBundle/src/",
+   neoxXorgTest = "neoxXorgTest\\neoxXorgTestBundle\\" : "reusableBundle/neoxXorgTestBundle/src/",
 ```
 Enter bundle name you want to create without [bundle]  in end --> parlonCode not paelonsCodeBundle !!
 
@@ -37,6 +37,19 @@ that all !! it will generate for you all :
 ## new command to Release reusable Bundle
 ```
     symfony console neox:bundle:release or s n:b:r
+```
+
+If you want to test reusableBundle
+```
+    #[Route('/', name: 'seo_home')]
+	public function index(TestService $service): Response
+    {
+        $t = $service->test();  //-> $t = "bundle ok"
+        
+		return $this->render('home/index.html.twig', [
+			'controller_name' => 'HomeController',
+		]);
+	}
 ```
 
 project

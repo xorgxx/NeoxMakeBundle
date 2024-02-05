@@ -1,12 +1,12 @@
 {
-  "name": "xorgxx/neox-make-bundle",
-  "description": "Neox make bundle for Symfony",
+  "name": "<?= $name_composer; ?>",
+  "description": "... Symfony",
   "license": "proprietary",
   "minimum-stability": "stable",
   "authors": [
     {
-      "name": "Xorg",
-      "email": "zorg@ip2.i2p"
+      "name": "your name",
+      "email": "Your Email"
     }
   ],
   "require": {
@@ -49,6 +49,11 @@
   "autoload": {
     "psr-4": {
       "<?= $name_space ?>": "src/"
+    }
+  }
+  "autoload-dev": {
+    "psr-4": {
+      "<?= $name_space ?>tests\\": "tests/"
     }
   }
 }
