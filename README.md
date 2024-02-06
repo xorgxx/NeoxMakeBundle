@@ -33,6 +33,9 @@ return [
 * ReusableBundle generator [ Command ]( Doc/MakeBundle.md )
 * Configuration [GitHub]( Doc/GitHubRelease.md )
 * Configuration [Packagist]( Doc/PackagistRelease.md )
+* Tutorial Official
+  * [Symfony Reusable Bundles]( https://symfony.com/doc/current/bundles/best_practices.html )
+  * [Symfonycasts Creating a Reusable]( https://symfonycasts.com/screencast/symfony-bundle )
 ## Contributing
 If you want to contribute \(thank you!\) to this bundle, here are some guidelines:
 
