@@ -50,7 +50,7 @@
     "psr-4": {
       "<?= $name_space ?>": "src/"
     }
-  }
+  },
   "autoload-dev": {
     "psr-4": {
       "<?= $name_space ?>tests\\": "tests/"

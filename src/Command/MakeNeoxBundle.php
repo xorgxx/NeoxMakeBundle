@@ -122,7 +122,7 @@
                     $directoryBundle . '/composer.json',
                     self::ORIGINAL_PATH . 'bundle/composer.json.tpl.php',
                     [
-                        "name_space"    => $bundleBag["composerNameSpace"],
+                        "name_space"    => str_replace("\\","\\\\",$bundleBag["composerNameSpace"]),
                         "name_composer" => $bundleBag["NameComposer"],
                     ]
                 ],

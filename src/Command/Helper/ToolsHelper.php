@@ -6,7 +6,8 @@
     use Symfony\Component\Filesystem\Filesystem;
     use Symfony\Component\Finder\Finder;
     use Symfony\Component\Process\Process;
-    use Composer\Json\JsonFile;
+    use Symfony\Component\Serializer\Encoder\JsonEncoder;
+    use Symfony\Component\Serializer\Serializer;
     use Symfony\Component\Serializer\Encoder\JsonDecode;
     
     class ToolsHelper
@@ -85,6 +86,7 @@
             return true;
         }
         
+        
         public function setBundlePhp(array $bundleName, string $mode = "add") : bool
         {
             // xorgXxxx\xorgXxxxBundle\xorgXxxxBundle
@@ -93,7 +95,7 @@
             
             if ($mode !== "add") {
                 // neoxXorg\neoxXorgBundle\neoxXorgBundle::class => ['all' => true],
-                $content            = str_replace("\t{$nameSpaceBundle}::class => ['all' => true],", '', $content);
+                $content            = str_replace("\t{$nameSpaceBundle}::class => ['all' => true],\n", "", $content);
             } else {
 //                $bundleClass        = "{$bundleName_}\\{$bundleName}Bundle\\{$bundleName}Bundle";
                 $returnPos          = strpos($content, 'return [');
@@ -101,47 +103,45 @@
                 $newBundleLine      = sprintf("\t%s::class => ['all' => true],\n", $nameSpaceBundle);
                 $content            = substr_replace($content, $newBundleLine, $returnEndPos, 0);
             }
-
+            
             return file_put_contents(self::BUNDLES_FILE_PATH, $content, LOCK_EX);
         }
         
         public function setComposerJson(array $bundleBag, string $mode = "add") : bool
         {
             // xorgXxxx\xorgXxxxBundle\xorgXxxxBundle
-//            $bundleNameSnake    = $this->toCamelCase( $bundleBag["bundleName"] );
-//            $bundleName_        = str_replace("Bundle", "", $bundleNameSnake);
             $nameSpaceBundle    = $bundleBag["rootNameSpace"]."\\";
             $content            = file_get_contents(self::COMPOSER_FILE_PATH);
-//            $composerClass      = "{$bundleName_}\\{$bundleBag["bundleName"]}\\";
-            
-            $content            =   json_decode($content, true);
+            $jsonEncoder        = new JsonEncoder(defaultContext: ['json_encode_options' => JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE]);            $serializer         = new Serializer([], [$jsonEncoder]);
+            $dataArray          = $serializer->decode($content, 'json');
             
             if ($mode !== "add") {
-                if (isset($content['autoload']['psr-4'][$nameSpaceBundle])) {
-                    unset($content['autoload']['psr-4']["$nameSpaceBundle"]);
-                    if ($content === false) {
+                if (isset($dataArray['autoload']['psr-4'][$nameSpaceBundle])) {
+                    unset($dataArray['autoload']['psr-4']["$nameSpaceBundle"]);
+                    if ($dataArray === false) {
                         throw new \RuntimeException('Erreur lors de l\'encodage JSON.');
                     }
                 }
-                if (isset($content['autoload-dev']['psr-4'][$nameSpaceBundle.'Tests\\'])) {
-                    unset($content['autoload-dev']['psr-4'][$nameSpaceBundle.'Tests\\']);
-                    if ($content === false) {
+                if (isset($dataArray['autoload-dev']['psr-4'][$nameSpaceBundle.'Tests\\'])) {
+                    unset($dataArray['autoload-dev']['psr-4'][$nameSpaceBundle.'Tests\\']);
+                    if ($dataArray === false) {
                         throw new \RuntimeException('Erreur lors de l\'encodage JSON.');
                     }
                 }
                 
             } else {
                 $directory  = "{$bundleBag["pathRepo"]}{$bundleBag["bundleName"]}/src/";
-                if (!isset($content['autoload']['psr-4'][$nameSpaceBundle])) {
-                    $content['autoload']['psr-4'][$nameSpaceBundle] = $directory;
+                if (!isset($dataArray['autoload']['psr-4'][$nameSpaceBundle])) {
+                    $dataArray['autoload']['psr-4'][$nameSpaceBundle] = $directory;
                 }
 //                "neoxXorg\\neoxXorgBundle\\Tests\\": "reusableBundle/neox-xorg-bundle/tests/"
-                if (!isset($content['autoload-dev']['psr-4'][$nameSpaceBundle.'Tests\\'])) {
-                    $content['autoload-dev']['psr-4'][$nameSpaceBundle.'Tests\\'] = $directory;
+                if (!isset($dataArray['autoload-dev']['psr-4'][$nameSpaceBundle.'Tests\\'])) {
+                    $dataArray['autoload-dev']['psr-4'][$nameSpaceBundle.'Tests\\'] = $directory;
                 }
             }
             
-            $content    = json_encode($content, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+//            $content    = json_encode($content, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+            $content = $serializer->encode($dataArray, 'json');
             file_put_contents(self::COMPOSER_FILE_PATH, $content, LOCK_EX);
             
             $process = (new Process(['composer', 'dump-autoload']))->run();

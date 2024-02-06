@@ -50,15 +50,15 @@
             try {
                 if ($action === "Release") {
                     // Ask the user for the new location of the bundle
-                    // Move the bundle to the new location
+                    // Move the bundle to the new location0
                     $question       = new Question("Please enter the new location for the bundle {$bundleName}: [../Repo/]", '../Repo/');
                     $newLocation    = $this->getHelper('question')->ask($input, $output, $question);
                     $this->toolsHelper->setMoveBundle($bundleBag, $newLocation);
-                    $output->writeln("The bundle was successfully moved to {$newLocation}.");
+                    $output->writeln("The bundle | {$bundleBag["bundleName"]} was successfully moved to {$newLocation}.");
                 }
                 if ($action === "Delete") {
                     $this->toolsHelper->setRemoveBundle($bundleBag);
-                    $output->writeln("The bundle was successfully removed.");
+                    $output->writeln("The bundle | {$bundleBag["bundleName"]} was successfully removed.");
                 }
               
             } catch (IOExceptionInterface $exception) {
@@ -74,7 +74,7 @@
             // "xorgXxxx\\xorgXxxxBundle\\" : "Library/xorgXxxx/src/",
             $this->toolsHelper->setComposerJson($bundleBag, "release");
             
-            $output->writeln("The bundle references have been successfully released.");
+            $output->writeln("The bundle | {$bundleBag["bundleName"]} references have been successfully $action.");
             
             return Command::SUCCESS;
         }
