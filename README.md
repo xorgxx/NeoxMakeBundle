@@ -29,9 +29,10 @@ return [
 
 
 ## Tools !
-* Table-crud [neoxmake:table:crud]( Doc/MakeTable.md )
-* ReusableBundle generator [neoxmake:generate:bundle]( Doc/MakeBundle.md )
-
+* Table-crud [ Command ]( Doc/MakeTable.md )
+* ReusableBundle generator [ Command ]( Doc/MakeBundle.md )
+* Configuration [GitHub]( Doc/GitHubRelease.md )
+* Configuration [Packagist]( Doc/PackagistRelease.md )
 ## Contributing
 If you want to contribute \(thank you!\) to this bundle, here are some guidelines:
 
