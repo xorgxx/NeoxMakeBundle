@@ -1,9 +1,9 @@
 # NeoxMakeBundle { Symfony 6 }
-This bundle provides additional tools command line in your application.
-Its main goal is to make it simple for you to manage integration additional tools!
+This bundle provides additional tool command line in your application.
+Its main goal is to make it simple for you to manage integration with additional tools!
 
-## Installation BETA VERSION !!
-Install the bundle for Composer !! as is still on beta version !!
+## Installation Release !!
+Install the bundle for Composer
 
 ````
   composer require xorgxx/neox-make-bundle --dev
