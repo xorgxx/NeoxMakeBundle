@@ -108,7 +108,7 @@
             $entityTwigVarSingular = Str::asTwigVariable($input->getArgument('entity-class'));
 
             // create Component generic
-            $t = 'src/Twig/Components/yaml/' . $entityTwigVarSingular . 'Sortable.test';
+            $t = 'src/Twig/Components/yaml/' . $entityTwigVarSingular . 'Sortable.yaml';
             $generator->generateFile(
                 $t,
                 self::neox_Resources_skeleton . 'sortable/Twig/Components/sortable.tpl.yaml',
