@@ -37,8 +37,7 @@
     "symfony/http-client": "^6.3||^6.4||^7.0",
     "symfony/maker-bundle": "^1.51",
     "symfony/phpunit-bridge": "^6.3||^6.4||^7.0",
-    "symfony/security-core": "^6.3||^6.4||^7.0",
-  
+    "symfony/security-core": "^6.3||^6.4||^7.0"
   },
   "config": {
     "preferred-install": "dist",
