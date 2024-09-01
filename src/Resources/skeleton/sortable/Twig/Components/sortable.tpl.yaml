@@ -5,7 +5,9 @@
 #                'class'     => post::class,
 #            ]);
 # 2 - In twig : yourBundle/sortable.html.twig
-#        <twig:Sortable :class="class"/>
+#        <turbo-frame id="sortable-container">
+#           <twig:Sortable :class="class"/>
+#        </turbo-frame>
 #
 # OR you can use in twig like this :
 #
