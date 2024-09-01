@@ -4,8 +4,7 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
-#    neox_table.path_js_bs-datatable: "build/canvas/jsooo/components/bs-datatable.js"
-#    neox_table.path_css_bs-datatable: "build/canvas/css/components/bs-datatable.css
+
 
 services:
     # default configuration for services in *this* file
@@ -16,41 +15,25 @@ services:
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
     Twig\Extension\StringLoaderExtension:
-
-    NeoxMake\NeoxMakeBundle\:
+    
+    NeoxDoctrineSecure\NeoxDoctrineSecureBundle\:
         resource: '../../../src/'
         exclude:
             - '../../../src/DependencyInjection/'
             - '../../../src/Entity/'
             - '../../../src/Kernel.php'
-            - '../../../src/Resources/skeleton/'
-     
+
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
-    NeoxMake\NeoxMakeBundle\Service\NeoxTableTools:
-        public: true
-        arguments:
-            - Symfony\Contracts\Translation\TranslatorInterface
+
+    NeoxDoctrineSecure\NeoxDoctrineSecureBundle\Services\TestService:
     
-    NeoxMake\NeoxMakeBundle\Command\Helper\ToolsHelper:
-        arguments:
-            - '@Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface'
-        
-#    app.ValidatorCommand:
-#        class: NeoxMake\NeoxMakeBundle\Utils\ValidatorCommand
-#
-#    app.maker.neox.make_bundle:
-#        class: NeoxMake\NeoxMakeBundle\Command\MakeNeoxBundle
-#        arguments:
-#            - '@NeoxMake\NeoxMakeBundle\Command\Helper\ToolsHelper;'
-#        tags:
-#            - { name: maker.command }
-            
-            
-    app.maker.neox.make_crud:
-        class: NeoxMake\NeoxMakeBundle\Command\MakeNeoxCrud
-        arguments: ['@maker.doctrine_helper', '@maker.renderer.form_type_renderer']
+#    NeoxDoctrineSecure\NeoxDoctrineSecureBundle\EventSubscriber\NeoxDoctrineSecureSubscriber:
+    
+    NeoxDoctrineSecure\NeoxDoctrineSecureBundle\Command\NeoxEncryptorStatusCommand:
         tags:
-            - { name: maker.command }
-            
-            
+            - name: 'console.command'
+        
+#    NeoxDoctrineSecure\NeoxDoctrineSecureBundle\Command\Helper\helperCommand:
+#        arguments:
+#            $doctrine: Doctrine\Persistence\ManagerRegistry
