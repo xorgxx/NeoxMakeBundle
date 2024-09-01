@@ -1,0 +1,35 @@
+{% macro render_value(value, type, header) %}
+
+    {% if type == 'DateTime' or type == 'DateTimeImmutable' %}
+        {% set format = header.format| default('Y-m-d H:i') %}
+        {{ value|date(format) }}
+
+    {% elseif type == 'int' %}
+        {{ value }}
+
+    {% elseif type == 'string' %}
+        {% if header.format is defined and header.format %}
+            {% set formatParts = header.format|split(',') %}
+            {% set length = formatParts[0]|trim|number_format(0, '.', '') %}
+            {% set suffix = formatParts[1]|default("' ...'")|trim|replace({"'": ""}) %}
+            {{ value|u.truncate(length, suffix, false) }}
+        {% else %}
+            {{ value|e }}
+        {% endif %}
+
+    {% elseif type == 'float' %}
+        {{ value|number_format(2) }}
+
+    {% elseif type == 'array' %}
+        {{ value|json_encode() }}
+
+    {% elseif type == 'bool' %}
+        {{ value ? 'true' : 'false' }}
+
+    {% elseif value is empty %}
+        <em>nc</em>
+
+    {% else %}
+        {{ value }}
+    {% endif %}
+{% endmacro %}

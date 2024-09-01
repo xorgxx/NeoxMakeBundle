@@ -1,0 +1,30 @@
+{% for header in headers %}
+    <td >
+        <div class="d-flex align-items-center justify-content-between">
+            {% if header.filter is defined and header.filter == 'false' %}
+                {{  getTrans(header) }}
+            {% else %}
+                {{  getTrans(header) }}
+                <button
+                        class="btn"
+                        style="--bs-btn-padding-y: .25rem; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .45rem;"
+                        data-action="live#action"
+                        data-live-action-param="sortable"
+                        data-live-header-param="{{ header.key }}"
+                        data-live-query-param="{{ query }}"
+                >
+                    {% if cHeader == header.key %}
+                        {% if cSort == "asc" %}
+                            <twig:ux:icon name="fa6-solid:sort-up" width="10" color="red"/>
+                        {% else %}
+                            <twig:ux:icon name="fa6-solid:sort-down" width="10" color="red"/>
+                        {% endif %}
+                    {% else %}
+                        <twig:ux:icon name="fa6-solid:sort" width="10" color="red"/>
+                    {% endif %}
+                </button>
+            {% endif %}
+        </div>
+
+    </td>
+{% endfor %}

@@ -1,0 +1,81 @@
+# To use this template you must use this file :
+# 1 - in one of your controller :
+#        public function sortable(): Response
+#        return $this->render('yourBundle/sortable.html.twig', [
+#                'class'     => post::class,
+#            ]);
+# 2 - In twig : yourBundle/sortable.html.twig
+#        <twig:Sortable :class="class"/>
+#
+# OR you can use in twig like this :
+#
+#   <twig:Sortable :class="class"/>  --- > dont foreget to provide class !!
+#
+#
+
+iniSortable :
+  config  :
+    height : 900        # height of sortable table in px
+  initial :
+    title  :
+      label : "post.home.title"
+    action :
+      label : "post.form.action.label"
+  
+  table   : # list of headers view
+    # key       = name of column in your table very important to have strict same as in entity !!
+    # trans     = name of your translation [messages].form.view.label = message are domain use by default to translate
+    # format    = optional, for date format use date format like (Y-m-d) or can by use as truncate twig function
+    # voter     = optional, if you need to use voter you can use it like this (voter: ["ROLE_ADMIN", "ROLE_OWNER"])
+    # thumbtack = optional, if you need to use thumbtack you can use it like this (thumbtack: "true") Publish or unpublish
+    
+    - { key : "id", trans : "post.form.id.label" }
+    - { key : "name", trans : "post.form.name.label" }
+    - { key : "content", trans : "post.form.content.label", format : "100, ...", voter : [ "ROLE_ADMIN", "ROLE_OWNER" ] }
+    - { key : "slug", trans : "post.form.slug.label", thumbtack : "true" }
+    - { key : "creatAt", trans : "post.form.createAt.label", format : "Y-m-d" }
+  
+  actions : # list of actions to display on top of table header and item have the same structure!!
+    header : # array of button you may need on top navbar
+      - button : # Optional : can use or not
+          label  : "Add"                                   # name of your translation [messages].form.view.label = message are domain use by default to translate
+          action : # Optional : custom action !!! you can use any path CRUD or what ever you want
+            pathName : "replace_content"                # name of your route, twig will use it to generate url
+            params   : { "id" : "id", "slug" : "slug" }   # it wil loop on item [entity] and key : [post.id]
+          # frame : "bar"                                 # it will add on frame in advance mode !!
+          icon   : "fa6-solid:plus"                         # use fontawesome 6 icon https://ux.symfony.com/icons
+          color  : "success"                               # color for button
+      - button :
+          label  : "messages.form.view.label"
+          action :
+            voter    : [ "ROLE_ADMIN", "ROLE_OWNER" ]
+            pathName : "replace_content"
+            params   : { }
+          icon   : "fa6-solid:eye"
+          color  : "warning"
+    item   :
+      - button :
+          label  : "messages.form.view.label"
+          action : # custom action !!! you can use any path CRUD or what ever you want
+            voter    : [ "ROLE_ADMIN", "ROLE_OWNER" ]
+            pathName : "replace_content"
+            params   : { "id" : "id", "slug" : "slug" }
+            frame    : "sortable-container"
+          icon   : "fa6-solid:eye"
+          color  : "warning"
+      - button :
+          label  : "messages.form.update.label"
+          action :
+            pathName : "replace_content"
+            params   : { }
+            frame    : "sortable-container"
+          icon   : "fa6-solid:pen-to-square"
+          color  : "primary"
+      - button :
+          label  : "messages.form.delete.label"
+          action :
+            pathName : "replace_content"
+            params   : { }
+            frame    : "sortable-container"
+          icon   : "fa6-solid:trash"
+          color  : "danger"

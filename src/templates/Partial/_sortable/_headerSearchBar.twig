@@ -1,0 +1,19 @@
+<div class="row">
+    <div class="col-8">
+        <div class="input-group mb-3">
+            <input
+                type="text"
+                data-model="query"
+                placeholder="Search..."
+                aria-describedby="basic-addon2"
+                class="form-control fw-bold"
+                data-action="live#action"
+                data-live-action-param="search"
+                data-live-query-param="{{ query }}"
+                data-live-debounce="2555ms"
+            >
+            <span class="input-group-text fw-bold bg-dark text-light" id="inputGroup-sizing-lg">{{ entities|length }} / <small style="color: #fabe28;opacity: 0.7" class="mx-1">{{ nbItems }}</small></span>
+        </div>
+
+    </div>
+</div>

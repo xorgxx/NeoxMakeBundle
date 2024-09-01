@@ -29,7 +29,8 @@ return [
 
 
 ## Tools !
-* Table-crud [ Command ]( Doc/MakeTable.md )
+* Table-crud [ Tuto ]( Doc/MakeTable.md )
+* Sortable-entity [ Tuto ]( Doc/MakeSortable.md )
 * ReusableBundle generator [ Command ]( Doc/MakeBundle.md )
 * Configuration [GitHub]( Doc/GitHubRelease.md )
 * Configuration [Packagist]( Doc/PackagistRelease.md )

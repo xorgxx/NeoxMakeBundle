@@ -1,0 +1,29 @@
+
+<turbo-frame id="sortable-container">
+    <div {{ attributes }}>
+
+        {# it will encapsulate in <td> </td> #}
+        {{ include('@NeoxMakeBundle/Partial/_sortable/_headerBar.twig') }}
+        {# it will encapsulate in <td> </td> #}
+        {{ include('@NeoxMakeBundle/Partial/_sortable/_headerSearchBar.twig') }}
+        <div class="table-responsive" style="max-height: {{ config.height|default(500) }}px; overflow-y: auto; margin-bottom: 60px;border-collapse: separate; border-radius: 7px ">
+            <table class="table table-primary table-bordered table-striped table-hover">
+                <thead class="fw-bold table-dark" style="position: sticky; top: 0; z-index: 10;">
+                <tr>
+                    {{ include('@NeoxMakeBundle/Partial/_sortable/_headerTable.twig') }}
+                    {{ include('@NeoxMakeBundle/Partial/_sortable/_sortableTableActions.twig') }}
+                </tr>
+                </thead>
+                <tbody>
+                {% for item in entities %}
+                    <tr>
+                        {{ include('@NeoxMakeBundle/Partial/_sortable/_sortableData.twig') }}
+                        {{ include('@NeoxMakeBundle/Partial/_sortable/_sortableDataActions.twig') }}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {{ include('@NeoxMakeBundle/Partial/_sortable/_footerBar.twig') }}
+        </div>
+    </div>
+</turbo-frame>

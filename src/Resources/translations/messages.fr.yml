@@ -1,0 +1,33 @@
+# src/Acme/DemoBundle/Resources/translations/messages.fr.yml
+messages :
+    home :
+        title : Generique
+        sub-title : Interface
+    setup-tool :
+        title : Menu
+    form :
+        action.label : Action
+        add.label : Ajouter
+        view.label : Voir
+        update.label : Modifier
+        delete.label : Supprimer
+        delete.msg.label : Êtes-vous sûr de bien vouloir supprimer cet élément ?
+        pin.publish.1 : Êtes-vous sûr de bien vouloir de-publier cet élément ?
+        pin.publish.0 : Êtes-vous sûr de bien vouloir publier cet élément ?
+        save.label : Enregistrer
+        home :
+            title : Post Manager
+            title-edit : Edit Post
+            title-new : New Post
+        id :
+            label : id
+            placeholder : Saisir nom un pour le tags ...
+        slug :
+            label : slug
+            placeholder : Saisir nom un pour le tags ...
+        createdAt :
+            label : createdAt
+            placeholder : Saisir nom un pour le tags ...
+        updatedAt :
+            label : updatedAt
+            placeholder : Saisir nom un pour le tags ...

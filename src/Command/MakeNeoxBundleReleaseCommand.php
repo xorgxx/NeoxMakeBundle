@@ -33,7 +33,7 @@
                 ->setDescription('Relaese bundle to a new location.');
         }
         
-        protected function execute(InputInterface $input, OutputInterface $output)
+        protected function execute(InputInterface $input, OutputInterface $output):int
         {
             
             $bundles            = $this->toolsHelper->getBundles();

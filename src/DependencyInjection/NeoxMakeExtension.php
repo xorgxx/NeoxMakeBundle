@@ -8,8 +8,9 @@
 	use Symfony\Component\DependencyInjection\Extension\Extension;
 	use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
     use Symfony\Component\DependencyInjection\Reference;
+    use Symfony\Component\DependencyInjection\Extension\PrependExtensionInterface;
 
-    class NeoxMakeExtension extends Extension
+    class NeoxMakeExtension extends Extension implements PrependExtensionInterface
 	{
 
 		/**
@@ -30,4 +31,18 @@
                 $container->setParameter('neox_make.'.$key, $value);
             }
 		}
+
+        public function prepend(ContainerBuilder $container)
+        {
+            $container->prependExtensionConfig('twig', [
+                'paths' => [
+                    '%kernel.project_dir%\\vendor\\xorgxx\\neox-make-bundle\\src\\templates' => 'NeoxMakeBundle',
+                ],
+            ]);
+            $container->prependExtensionConfig('twig_component', [
+                'defaults' => [
+                    'NeoxMake\\NeoxMakeBundle\\Twig\\Components\\' => '~',
+                ],
+            ]);
+        }
 	}

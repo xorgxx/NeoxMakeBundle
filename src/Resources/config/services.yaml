@@ -4,8 +4,9 @@
 # Put parameters here that don't need to change on each machine where the app is deployed
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
-
-
+#    neox_table.path_js_bs-datatable: "build/canvas/jsooo/components/bs-datatable.js"
+#    neox_table.path_css_bs-datatable: "build/canvas/css/components/bs-datatable.css
+    
 services:
     # default configuration for services in *this* file
     _defaults:
@@ -15,25 +16,49 @@ services:
     # makes classes in src/ available to be used as services
     # this creates a service per class whose id is the fully-qualified class name
     Twig\Extension\StringLoaderExtension:
-    
-    NeoxDoctrineSecure\NeoxDoctrineSecureBundle\:
+
+    NeoxMake\NeoxMakeBundle\:
         resource: '../../../src/'
         exclude:
             - '../../../src/DependencyInjection/'
             - '../../../src/Entity/'
             - '../../../src/Kernel.php'
-
+            - '../../../src/Resources/skeleton/'
+     
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
-
-    NeoxDoctrineSecure\NeoxDoctrineSecureBundle\Services\TestService:
+    NeoxMake\NeoxMakeBundle\Service\NeoxTableTools:
+        public: true
+        arguments:
+            - Symfony\Contracts\Translation\TranslatorInterface
     
-#    NeoxDoctrineSecure\NeoxDoctrineSecureBundle\EventSubscriber\NeoxDoctrineSecureSubscriber:
-    
-    NeoxDoctrineSecure\NeoxDoctrineSecureBundle\Command\NeoxEncryptorStatusCommand:
-        tags:
-            - name: 'console.command'
+    NeoxMake\NeoxMakeBundle\Command\Helper\ToolsHelper:
+        arguments:
+            - '@Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface'
         
-#    NeoxDoctrineSecure\NeoxDoctrineSecureBundle\Command\Helper\helperCommand:
+#    app.ValidatorCommand:
+#        class: NeoxMake\NeoxMakeBundle\Utils\ValidatorCommand
+#
+#    app.maker.neox.make_bundle:
+#        class: NeoxMake\NeoxMakeBundle\Command\MakeNeoxBundle
 #        arguments:
-#            $doctrine: Doctrine\Persistence\ManagerRegistry
+#            - '@NeoxMake\NeoxMakeBundle\Command\Helper\ToolsHelper;'
+#        tags:
+#            - { name: maker.command }
+            
+            
+    app.maker.neox.make_crud:
+        class: NeoxMake\NeoxMakeBundle\Command\MakeNeoxCrud
+        arguments: ['@maker.doctrine_helper', '@maker.renderer.form_type_renderer']
+        tags:
+            - { name: maker.command }
+     
+    app.maker.neox.make_sortable:
+        class: NeoxMake\NeoxMakeBundle\Command\MakeNeoxSortable
+        arguments: [ '@maker.doctrine_helper', '@maker.renderer.form_type_renderer' ]
+        tags:
+            - { name: maker.command }
+
+    NeoxMake\NeoxMakeBundle\Twig\Components\:
+        resource: '../../../src/Twig/Components/*'
+        tags: [ 'twig.component' ]

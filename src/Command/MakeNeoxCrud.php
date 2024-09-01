@@ -1,5 +1,5 @@
 <?php
-    
+
     /*
      * This file is part of the Symfony MakerBundle package.
      *
@@ -8,9 +8,9 @@
      * For the full copyright and license information, please view the LICENSE
      * file that was distributed with this source code.
      */
-    
+
     namespace NeoxMake\NeoxMakeBundle\Command;
-    
+
     //use App\Controller\_CoreController;
     use NeoxMake\NeoxMakeBundle\Controller\_NeoxCoreController;
     use NeoxMake\NeoxMakeBundle\Service\NeoxTableBuilder;
@@ -44,106 +44,106 @@
     use Symfony\Component\Routing\Annotation\Route;
     use Symfony\Component\Security\Csrf\CsrfTokenManager;
     use Symfony\Component\Validator\Validation;
-    
+
     /**
      * @author Sadicov Vladimir <sadikoff@gmail.com>
      */
     final class MakeNeoxCrud extends AbstractMaker
     {
         private Inflector $inflector;
-        private string $controllerClassName;
-        private bool $generateTests = false;
-        private bool $generateTranslator = false;
-        
+        private string    $controllerClassName;
+        private bool      $generateTests      = false;
+        private bool      $generateTranslator = false;
+
         private const neox_table_crud_path = "neox/table";
-        
+
         public function __construct(private DoctrineHelper $doctrineHelper, private FormTypeRenderer $formTypeRenderer)
         {
             $this->inflector = InflectorFactory::create()->build();
         }
-        
+
         public static function getCommandName(): string
         {
             return 'neoxmake:table:crud';
         }
-        
+
         public static function getCommandDescription(): string
         {
             return 'Creates NeoxTable 🌭 CRUD for Doctrine entity class';
         }
-        
+
         public function configureCommand(Command $command, InputConfiguration $inputConfig): void
         {
             $command
                 ->addArgument('entity-class', InputArgument::OPTIONAL, sprintf('The class name of the entity to create --> <fg=red>NeoxTable !!</> <-- CRUD (e.g. <fg=yellow>%s</>)', Str::asClassName(Str::getRandomTerm())))
                 ->setHelp(file_get_contents(__DIR__ . '/../Resources/help/MakeCrud.txt'));
-            
+
             $inputConfig->setArgumentAsNonInteractive('entity-class');
         }
-        
+
         public function interact(InputInterface $input, ConsoleStyle $io, Command $command): void
         {
             if (null === $input->getArgument('entity-class')) {
                 $argument = $command->getDefinition()->getArgument('entity-class');
-                
+
                 $entities = $this->doctrineHelper->getEntitiesForAutocomplete();
-                
+
                 $question = new Question($argument->getDescription());
                 $question->setAutocompleterValues($entities);
-                
+
                 $value = $io->askQuestion($question);
-                
+
                 $input->setArgument('entity-class', $value);
             }
-            
+
             // here to put path !!! $defaultControllerClass = Admin\faqs\crud
             $defaultControllerClass     = Str::asClassName(sprintf('%s Controller', $input->getArgument('entity-class')));
             $defaultControllerClassNeox = sprintf('Admin\%s\crud', strtolower($input->getArgument('entity-class')));
             $nameClass                  = strtolower($input->getArgument('entity-class'));
-            $this->controllerClassName = $io->ask(
+            $this->controllerClassName  = $io->ask(
                 sprintf('Choose a name for your controller class (e.g. <fg=yellow>%s</>)', $defaultControllerClass),
                 $defaultControllerClassNeox
             );
-            
-            $this->generateTranslator   = $io->confirm("Do you want to generate Translator [$nameClass.fr.yml] file for the entity?. [made by neox]", false);
-            
-            $this->generateTests        = $io->confirm('Do you want to generate tests for the controller?. [Experimental]', false);
+
+            $this->generateTranslator = $io->confirm("Do you want to generate Translator [$nameClass.fr.yml] file for the entity?. [made by neox]", false);
+
+            $this->generateTests = $io->confirm('Do you want to generate tests for the controller?. [Experimental]', false);
         }
-        
+
         public function generate(InputInterface $input, ConsoleStyle $io, Generator $generator): void
         {
             $entityClassDetails = $generator->createClassNameDetails(
                 Validator::entityExists($input->getArgument('entity-class'), $this->doctrineHelper->getEntitiesForAutocomplete()),
                 'Entity\\'
             );
-            
+
             $entityDoctrineDetails = $this->doctrineHelper->createDoctrineDetails($entityClassDetails->getFullName());
-            
-            $repositoryVars = [];
+
+            $repositoryVars      = [];
             $repositoryClassName = EntityManagerInterface::class;
-            
+
             if (null !== $entityDoctrineDetails->getRepositoryClass()) {
                 $repositoryClassDetails = $generator->createClassNameDetails(
                     '\\' . $entityDoctrineDetails->getRepositoryClass(),
                     'Repository\\',
                     'Repository'
                 );
-                
+
                 $repositoryClassName = $repositoryClassDetails->getFullName();
-                
+
                 $repositoryVars = [
                     'repository_full_class_name' => $repositoryClassName,
-                    'repository_class_name' => $repositoryClassDetails->getShortName(),
-                    'repository_var' => lcfirst($this->inflector->singularize($repositoryClassDetails->getShortName())),
+                    'repository_class_name'      => $repositoryClassDetails->getShortName(),
+                    'repository_var'             => lcfirst($this->inflector->singularize($repositoryClassDetails->getShortName())),
                 ];
             }
-            
+
             $controllerClassDetails = $generator->createClassNameDetails(
                 $this->controllerClassName,
                 'Controller\\',
                 'Controller'
             );
-            
+
             $iter = 0;
             do {
                 $formClassDetails = $generator->createClassNameDetails(
@@ -153,16 +153,16 @@
                 );
                 ++$iter;
             } while (class_exists($formClassDetails->getFullName()));
-            
-            $entityVarPlural = lcfirst($this->inflector->pluralize($entityClassDetails->getShortName()));
+
+            $entityVarPlural   = lcfirst($this->inflector->pluralize($entityClassDetails->getShortName()));
             $entityVarSingular = lcfirst($this->inflector->singularize($entityClassDetails->getShortName()));
-            
-            $entityTwigVarPlural = Str::asTwigVariable($entityVarPlural);
+
+            $entityTwigVarPlural   = Str::asTwigVariable($entityVarPlural);
             $entityTwigVarSingular = Str::asTwigVariable($entityVarSingular);
-            
-            $routeName = Str::asRouteName($controllerClassDetails->getRelativeNameWithoutSuffix());
+
+            $routeName     = Str::asRouteName($controllerClassDetails->getRelativeNameWithoutSuffix());
             $templatesPath = Str::asFilePath($controllerClassDetails->getRelativeNameWithoutSuffix());
-            
+
             $useStatements = new UseStatementGenerator([
                 $entityClassDetails->getFullName(),
                 $formClassDetails->getFullName(),
@@ -172,32 +172,32 @@
                 Response::class,
                 Route::class,
                 _NeoxCoreController::class,
-            
+
             ]);
-            
+
             $original_path = "vendor/xorgxx/neox-make-bundle/src/Resources/skeleton/";
-            
+
             $generator->generateController(
                 $controllerClassDetails->getFullName(),
                 $original_path . 'table/controller/Controller.tpl.php',
                 array_merge([
-                    'use_statements' => $useStatements,
-                    'entity_class_name' => $entityClassDetails->getShortName(),
-                    'form_class_name' => $formClassDetails->getShortName(),
-                    'route_path' => Str::asRoutePath($controllerClassDetails->getRelativeNameWithoutSuffix()),
-                    'route_name' => $routeName,
-                    'templates_path' => $templatesPath,
-                    'entity_var_plural' => $entityVarPlural,
-                    'entity_twig_var_plural' => $entityTwigVarPlural,
-                    'entity_var_singular' => $entityVarSingular,
+                    'use_statements'           => $useStatements,
+                    'entity_class_name'        => $entityClassDetails->getShortName(),
+                    'form_class_name'          => $formClassDetails->getShortName(),
+                    'route_path'               => Str::asRoutePath($controllerClassDetails->getRelativeNameWithoutSuffix()),
+                    'route_name'               => $routeName,
+                    'templates_path'           => $templatesPath,
+                    'entity_var_plural'        => $entityVarPlural,
+                    'entity_twig_var_plural'   => $entityTwigVarPlural,
+                    'entity_var_singular'      => $entityVarSingular,
                     'entity_twig_var_singular' => $entityTwigVarSingular,
-                    'entity_identifier' => $entityDoctrineDetails->getIdentifier(),
-                    'use_render_form' => method_exists(AbstractController::class, 'renderForm'),
+                    'entity_identifier'        => $entityDoctrineDetails->getIdentifier(),
+                    'use_render_form'          => method_exists(AbstractController::class, 'renderForm'),
                 ],
                     $repositoryVars
                 )
             );
-            
+
             // create translator generic
             if ($this->generateTranslator) {
                 $generator->generateFile(
@@ -210,50 +210,50 @@
                     ]
                 );
             }
-            
+
             $this->formTypeRenderer->render(
                 $formClassDetails,
                 $entityDoctrineDetails->getFormFields(),
                 $entityClassDetails
             );
-            
+
             $templates = [
                 '_delete_form' => [
-                    'route_name'                => $routeName,
-                    'entity_twig_var_singular'  => $entityTwigVarSingular,
-                    'entity_identifier'         => $entityDoctrineDetails->getIdentifier(),
+                    'route_name'               => $routeName,
+                    'entity_twig_var_singular' => $entityTwigVarSingular,
+                    'entity_identifier'        => $entityDoctrineDetails->getIdentifier(),
                 ],
-                '_form' => [],
-                'crud' => [
-                    'entity_class_name'         => $entityClassDetails->getShortName(),
-                    'entity_twig_var_singular'  => $entityTwigVarSingular,
-                    'entity_identifier'         => $entityDoctrineDetails->getIdentifier(),
-                    'route_name'                => $routeName,
-                    'templates_path'            => $templatesPath,
+                '_form'        => [],
+                'crud'         => [
+                    'entity_class_name'        => $entityClassDetails->getShortName(),
+                    'entity_twig_var_singular' => $entityTwigVarSingular,
+                    'entity_identifier'        => $entityDoctrineDetails->getIdentifier(),
+                    'route_name'               => $routeName,
+                    'templates_path'           => $templatesPath,
                 ],
-                'index' => [
-                    'entity_class_name'         => $entityClassDetails->getShortName(),
-                    'entity_twig_var_plural'    => $entityTwigVarPlural,
-                    'entity_twig_var_singular'  => $entityTwigVarSingular,
-                    'entity_identifier'         => $entityDoctrineDetails->getIdentifier(),
-                    'entity_fields'             => $entityDoctrineDetails->getDisplayFields(),
-                    'route_name'                => $routeName,
+                'index'        => [
+                    'entity_class_name'        => $entityClassDetails->getShortName(),
+                    'entity_twig_var_plural'   => $entityTwigVarPlural,
+                    'entity_twig_var_singular' => $entityTwigVarSingular,
+                    'entity_identifier'        => $entityDoctrineDetails->getIdentifier(),
+                    'entity_fields'            => $entityDoctrineDetails->getDisplayFields(),
+                    'route_name'               => $routeName,
                 ],
 //            'new' => [
 //                'entity_class_name' => $entityClassDetails->getShortName(),
 //                'route_name' => $routeName,
 //                'templates_path' => $templatesPath,
 //            ],
-                'show' => [
-                    'entity_class_name'         => $entityClassDetails->getShortName(),
-                    'entity_twig_var_singular'  => $entityTwigVarSingular,
-                    'entity_identifier'         => $entityDoctrineDetails->getIdentifier(),
-                    'entity_fields'             => $entityDoctrineDetails->getDisplayFields(),
-                    'route_name'                => $routeName,
-                    'templates_path'            => $templatesPath,
+                'show'         => [
+                    'entity_class_name'        => $entityClassDetails->getShortName(),
+                    'entity_twig_var_singular' => $entityTwigVarSingular,
+                    'entity_identifier'        => $entityDoctrineDetails->getIdentifier(),
+                    'entity_fields'            => $entityDoctrineDetails->getDisplayFields(),
+                    'route_name'               => $routeName,
+                    'templates_path'           => $templatesPath,
                 ],
             ];
-            
+
             foreach ($templates as $template => $variables) {
                 $generator->generateTemplate(
                     $templatesPath . '/' . $template . '.html.twig',
@@ -261,90 +261,90 @@
                     $variables
                 );
             }
-            
-            
+
+
             if ($this->generateTests) {
                 $testClassDetails = $generator->createClassNameDetails(
                     $entityClassDetails->getRelativeNameWithoutSuffix(),
                     'Test\\Controller\\',
                     'ControllerTest'
                 );
-                
+
                 $useStatements = new UseStatementGenerator([
                     $entityClassDetails->getFullName(),
                     WebTestCase::class,
                     KernelBrowser::class,
                     $repositoryClassName,
                 ]);
-                
+
                 $usesEntityManager = EntityManagerInterface::class === $repositoryClassName;
-                
+
                 if ($usesEntityManager) {
                     $useStatements->addUseStatement(EntityRepository::class);
                 }
-                
+
                 $generator->generateFile(
                     'tests/Controller/' . $testClassDetails->getShortName() . '.php',
                     $usesEntityManager ? $original_path . 'table/test/Test.EntityManager.tpl.php' : $original_path . 'table/test/Test.tpl.php',
                     [
-                        'use_statements' => $useStatements,
+                        'use_statements'         => $useStatements,
                         'entity_full_class_name' => $entityClassDetails->getFullName(),
-                        'entity_class_name' => $entityClassDetails->getShortName(),
-                        'entity_var_singular' => $entityVarSingular,
-                        'route_path' => Str::asRoutePath($controllerClassDetails->getRelativeNameWithoutSuffix()),
-                        'route_name' => $routeName,
-                        'class_name' => Str::getShortClassName($testClassDetails->getFullName()),
-                        'namespace' => Str::getNamespace($testClassDetails->getFullName()),
-                        'form_fields' => $entityDoctrineDetails->getFormFields(),
-                        'repository_class_name' => $usesEntityManager ? EntityManagerInterface::class : $repositoryVars['repository_class_name'],
-                        'form_field_prefix' => strtolower(Str::asSnakeCase($entityTwigVarSingular)),
+                        'entity_class_name'      => $entityClassDetails->getShortName(),
+                        'entity_var_singular'    => $entityVarSingular,
+                        'route_path'             => Str::asRoutePath($controllerClassDetails->getRelativeNameWithoutSuffix()),
+                        'route_name'             => $routeName,
+                        'class_name'             => Str::getShortClassName($testClassDetails->getFullName()),
+                        'namespace'              => Str::getNamespace($testClassDetails->getFullName()),
+                        'form_fields'            => $entityDoctrineDetails->getFormFields(),
+                        'repository_class_name'  => $usesEntityManager ? EntityManagerInterface::class : $repositoryVars[ 'repository_class_name' ],
+                        'form_field_prefix'      => strtolower(Str::asSnakeCase($entityTwigVarSingular)),
                     ]
                 );
-                
+
                 if (!class_exists(WebTestCase::class)) {
                     $io->caution('You\'ll need to install the `symfony/test-pack` to execute the tests for your new controller.');
                 }
             }
-            
+
             $generator->writeChanges();
-            
+
             $this->writeSuccessMessage($io);
-            
+
             $io->text(sprintf('Next: Check your new neox-table-crud CRUD by going to <fg=yellow>%s/</>', Str::asRoutePath($controllerClassDetails->getRelativeNameWithoutSuffix())));
         }
-        
+
         public function configureDependencies(DependencyBuilder $dependencies): void
         {
             $dependencies->addClassDependency(
                 Route::class,
                 'router'
             );
-            
+
             $dependencies->addClassDependency(
                 AbstractType::class,
                 'form'
             );
-            
+
             $dependencies->addClassDependency(
                 Validation::class,
                 'validator'
             );
-            
+
             $dependencies->addClassDependency(
                 TwigBundle::class,
                 'twig-bundle'
             );
-            
+
             $dependencies->addClassDependency(
                 DoctrineBundle::class,
                 'orm'
             );
-            
+
             $dependencies->addClassDependency(
                 CsrfTokenManager::class,
                 'security-csrf'
             );
-            
+
             // !!!! remove the following dependencys for backwards compatibility with symfony < 6.2  compatibility
 //        $dependencies->addClassDependency(
 //            ParamConverter::class,

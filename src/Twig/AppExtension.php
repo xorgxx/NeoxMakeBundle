@@ -4,32 +4,25 @@ namespace NeoxMake\NeoxMakeBundle\Twig;
 
 use DateTime;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 use Twig\Environment;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
+use NeoxMake\NeoxMakeBundle\Service\ReflectionHelper;
 
 class AppExtension extends AbstractExtension
 {
-//    private TranslatorInterface    $translator;
-//    private RouterInterface        $router;
-//    private EntityManagerInterface $entityManager;
+    private TranslatorInterface    $translator;
+    private RouterInterface        $router;
+    private EntityManagerInterface $entityManager;
 
-    /**
-     * @var \Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface
-     */
-    private ParameterBagInterface $parameterBag;
-    /**
-     * @var Environment
-     */
-    private Environment $twig;
 
-    public function __construct(ParameterBagInterface $parameterBag, Environment $twig)
+    public function __construct(ParameterBagInterface $parameterBag, Environment $twig, TranslatorInterface $translator)
     {
-        // Inject dependencies if needed
-
         $this->parameterBag = $parameterBag;
         $this->twig         = $twig;
+        $this->translator   = $translator;
     }
 
     public function getFilters(): array
@@ -50,7 +43,8 @@ class AppExtension extends AbstractExtension
                 'needs_environment' => true,
             )),
             new TwigFunction('setJsFile', [$this, 'setJsFile']),
-//            new TwigFunction('Address', array($this, 'Address')),
+            new TwigFunction('getPropertyType', [ReflectionHelper::class, 'getPropertyType']),
+            new TwigFunction('getTrans', [$this, 'getTranslation']),
 
         ];
     }
@@ -64,5 +58,24 @@ class AppExtension extends AbstractExtension
     {
         $y = $this->parameterBag->get("neox_make.table.path_js_bs-datatable");
         return $this->twig->render("@NeoxMake/_neoxTableJs.html.twig",["pathJs" => $y ]);
+    }
+    
+    public function getTranslation(array $initial)
+    {
+        if (array_key_exists('key', $initial )) {
+            $domain = strstr($initial['trans'], '.', true) ?: $initial['key'];
+            return $this->translator->trans($initial['trans'], [], $domain);
+        } elseif (!empty($initial['label'])) {
+            $domain = strstr($initial['label'], '.', true) ?: $initial['label'];
+            return $this->translator->trans($initial['label'], [], $domain);
+        } else {
+            return 'nc';
+        }
+
+//        if (!empty($initial['label'])) {
+//            $domain = strstr($initial['label'], '.', true) ?: $initial['label'];
+//            return $this->translator->trans($initial['label'], [], $domain);
+//        }
+//        return $initial['label'] ?? $initial['key'];
     }
 }

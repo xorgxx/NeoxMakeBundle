@@ -1,0 +1,30 @@
+{#
+TODO :
+    find a way to do this in twig check if we want to create CRUD on the fly
+    in Header @->crud
+#}
+
+<td>
+    {% if actions is not empty %}
+        <div class="d-flex justify-content-end">
+            {% for action in actions.item %}
+
+                {% set query_params = {} %}
+                {% for key, value in action.button.action.params %}
+                    {% set query_params = query_params|merge({(key): attribute(item, value)}) %}
+                {% endfor %}
+
+                <button
+                        type="button"
+                        class="btn btn-{{ action.button.color|default('primary') }} mx-1 d-flex fw-bold align-items-center"
+                        onclick="Turbo.visit('{{ path(action.button.action.pathName, query_params) }}', { frame:'sortable-container' });">
+
+                    {{ getTrans(action.button) }}
+                    {% if action.button.icon is defined %}
+                        <twig:ux:icon name="{{ action.button.icon }}" width="16" height="16" class="mx-2"/>
+                    {% endif %}
+                </button>
+            {% endfor %}
+        </div>
+    {% endif %}
+</td>

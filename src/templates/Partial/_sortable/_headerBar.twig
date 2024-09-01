@@ -1,0 +1,37 @@
+
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div><h1 class="display-5 fw-bold text-body-emphasis">{{ getTrans(initial.title) }} Sortable manager</h1></div>
+
+    <div>
+        {% if actions is not empty %}
+            <div class="d-flex">
+                {% for action in actions.header %}
+                    <!-- Bouton pour remplacer le contenu -->
+                    {#    <button type="button"#}
+                    {#            class="btn btn-warning"#}
+                    {#                data-turbo-frame="dede"#}
+                    {#                data-turbo-action="replace"#}
+                    {#            onclick="Turbo.visit('{{ path('replace_content') }}', { frame: 'dede' });">#}
+                    {#        Remplacer le contenu#}
+                    {#    </button>#}
+                    <!-- Conteneur où le contenu sera remplacé -->
+                    <button
+                        type="button"
+{#                        data-turbo-frame="dede"#}
+{#                        data-turbo-action="replace"#}
+                        class="btn btn-{{ action.button.color|default('primary') }} mx-1 d-flex fw-bold align-items-center"
+                        onclick="Turbo.visit('{{ path(action.button.action.pathName) }}', { frame:'sortable-container' });"
+                    >
+                        {{ getTrans(action.button) }}
+                        {% if  action.button.icon is defined %}
+                            <twig:ux:icon name="{{ action.button.icon|default('fa6-solid:plus') }}" width="16" height="16" class="mx-2"/>
+                        {% endif %}
+                    </button>
+                    {#                        <a href="{{ action.key }}" class="btn btn-primary btn-sm mx-1 fw-bold">{{ action.key }} {{ ux_icon('bx:alarm') }}</a>#}
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+</div>
