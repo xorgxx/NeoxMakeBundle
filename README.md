@@ -2,13 +2,17 @@
 This bundle provides additional tool command line in your application.
 Its main goal is to make it simple for you to manage integration with additional tools!
 
+[![2024-09-01-17-37-59.png](https://i.postimg.cc/RZVp0b4D/2024-09-01-17-37-59.png)](https://postimg.cc/BXkBYp8T)
+[![2024-08-25-17-45-03.png](https://i.postimg.cc/HnGbSH19/2024-08-25-17-45-03.png)](https://postimg.cc/cgmKHpHv)
+[![2024-09-04-16-46-56.png](https://i.postimg.cc/y8w63Nmj/2024-09-04-16-46-56.png)](https://postimg.cc/rDN2vMYR)
+
 ## Installation Release !!
 Install the bundle for Composer
 
 ````
-  composer require xorgxx/neox-make-bundle --dev
+  composer require xorgxx/neox-make-bundle
   or 
-  composer require xorgxx/neox-make-bundle:0.* --dev
+  composer require xorgxx/neox-make-bundle:0.* 
 ````
 
 Make sure that is register the bundle in your AppKernel:

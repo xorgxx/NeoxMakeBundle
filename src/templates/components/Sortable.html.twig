@@ -1,6 +1,6 @@
 {# !!! it cannot be use inside <turbo-frame> !!! #}
 {#<turbo-frame id="sortable-container">#}
-    <div {{ attributes }}>
+<turbo-frame id="sortable-container" {{ attributes }}>
 
         {# it will encapsulate in <td> </td> #}
         {{ include('@NeoxMakeBundle/Partial/_sortable/_headerBar.twig') }}
@@ -25,5 +25,4 @@
             </table>
             {{ include('@NeoxMakeBundle/Partial/_sortable/_footerBar.twig') }}
         </div>
-    </div>
-{#</turbo-frame>#}
+</turbo-frame>
