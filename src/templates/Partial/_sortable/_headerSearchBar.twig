@@ -2,6 +2,7 @@
     <div class="col-8">
         <div class="input-group mb-3">
             <input
+                id="delayedInput"
                 type="text"
                 data-model="query"
                 placeholder="Search..."
@@ -17,3 +18,19 @@
 
     </div>
 </div>
+<script>
+    document.getElementById("delayedInput").addEventListener("input", function() {
+        const input = this;
+
+        // Supprimez tout timeout en cours pour ne pas exécuter plusieurs fois la fonction
+        clearTimeout(input.delayTimer);
+
+        // Démarrez un nouveau timeout
+        input.delayTimer = setTimeout(function() {
+            if (input.value.length >= 3) {
+                alert("Vous avez tapé au moins 3 caractères !");
+                // Vous pouvez ici exécuter l'action que vous voulez après 3 caractères
+            }
+        }, 500); // Délai en millisecondes avant d'exécuter l'action (ici 500ms)
+    });
+</script>
