@@ -11,26 +11,9 @@
                 data-action="live#action"
                 data-live-action-param="search"
                 data-live-query-param="{{ query }}"
-                data-live-debounce="2555ms"
             >
             <span class="input-group-text fw-bold bg-dark text-light" id="inputGroup-sizing-lg">{{ entities|length }} / <small style="color: #fabe28;opacity: 0.7" class="mx-1">{{ nbItems }}</small></span>
         </div>
 
     </div>
 </div>
-<script>
-    document.getElementById("delayedInput").addEventListener("input", function() {
-        const input = this;
-
-        // Supprimez tout timeout en cours pour ne pas exécuter plusieurs fois la fonction
-        clearTimeout(input.delayTimer);
-
-        // Démarrez un nouveau timeout
-        input.delayTimer = setTimeout(function() {
-            if (input.value.length >= 3) {
-                alert("Vous avez tapé au moins 3 caractères !");
-                // Vous pouvez ici exécuter l'action que vous voulez après 3 caractères
-            }
-        }, 500); // Délai en millisecondes avant d'exécuter l'action (ici 500ms)
-    });
-</script>
