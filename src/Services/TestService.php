@@ -1,6 +1,6 @@
 <?php
 
-namespace NeoxDoctrineSecure\NeoxDoctrineSecureBundle\Services;
+namespace NeoxMake\NeoxMakeBundle\Services;
 
 class TestService
 {
