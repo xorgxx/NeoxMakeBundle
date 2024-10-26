@@ -36,12 +36,12 @@
         {
             $container->prependExtensionConfig('twig', [
                 'paths' => [
-                    '%kernel.project_dir%\vendor\xorgxx\neox-make-bundle\src\templates\\' => 'NeoxMakeBundle',
+                    '%kernel.project_dir%/vendor/xorgxx/neox-make-bundle/src/templates' => 'NeoxMakeBundle',
                 ],
             ]);
             $container->prependExtensionConfig('twig_component', [
                 'defaults' => [
-                    'NeoxMake\NeoxMakeBundle\Twig\Components\\' => '~',
+                    'NeoxMake/NeoxMakeBundle/Twig/Components/' => '~',
                 ],
             ]);
         }
