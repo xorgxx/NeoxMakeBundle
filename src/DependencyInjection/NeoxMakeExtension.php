@@ -41,7 +41,7 @@
             ]);
             $container->prependExtensionConfig('twig_component', [
                 'defaults' => [
-                    'NeoxMake/NeoxMakeBundle/Twig/Components/' => '~',
+                    'NeoxMake/NeoxMakeBundle/Twig/Components\\' => '~',
                 ],
             ]);
         }
