@@ -16,7 +16,7 @@
     use Symfony\UX\LiveComponent\Attribute\LiveProp;
     use Symfony\UX\LiveComponent\DefaultActionTrait;
 
-    #[AsLiveComponent('Sortable', template: '@NeoxMakeBundle/Components/Sortable.html.twig')]
+    #[AsLiveComponent('Sortable', template: '@NeoxMakeBundle/components/Sortable.html.twig')]
     final class Sortable extends abstractController
     {
         use DefaultActionTrait;
