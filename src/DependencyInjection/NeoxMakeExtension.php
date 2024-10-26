@@ -41,7 +41,7 @@
             ]);
             $container->prependExtensionConfig('twig_component', [
                 'defaults' => [
-                    '%kernel.project_dir%/vendor/xorgxx/neox-make-bundle/src/Twig/Components\\' => '~',
+                    '%kernel.project_dir%/vendor/xorgxx/neox-make-bundle/src/Twig/Components/' => '~',
                 ],
             ]);
         }
