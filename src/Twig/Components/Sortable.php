@@ -1,5 +1,5 @@
 <?php
-
+    declare(strict_types=1);
     namespace NeoxMake\NeoxMakeBundle\Twig\Components;
 
     use App\Model\Headers;
