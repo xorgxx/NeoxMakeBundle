@@ -74,7 +74,7 @@
             $repository    = $this->entityManager->getRepository($this->class);
             $this->cHeader = $header;
             $this->cSort   = $this->cSort === 'asc' ? 'desc' : 'asc';
-            $this->nbItems = $repository->count();
+            $this->nbItems = $repository->count([]);
             $qb            = $repository->createQueryBuilder('e')
                 ->select('COUNT(e)')
                 ->orderBy('e.' . $this->cHeader, $this->cSort);
