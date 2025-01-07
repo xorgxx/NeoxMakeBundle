@@ -15,10 +15,13 @@ TODO :
                 {% endfor %}
 
                 <button
-                        type="button"
-                        class="btn btn-{{ action.button.color|default('primary') }} mx-1 d-flex fw-bold align-items-center"
-                        onclick="Turbo.visit('{{ path(action.button.action.pathName, query_params) }}', { frame:'sortable-container' });">
+                    type="button"
+                    class="btn btn-{{ action.button.color|default('primary') }} mx-1 d-flex fw-bold align-items-center"
 
+                {% for key, value in action.button.action.attributs %}
+                    {{ key }}="{{ template_from_string(value)|raw }}"
+                {% endfor %}
+                >
                     {{ getTrans(action.button) }}
                     {% if action.button.icon is defined %}
                         <twig:ux:icon name="{{ action.button.icon }}" width="16" height="16" class="mx-2"/>

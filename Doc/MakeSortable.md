@@ -91,6 +91,13 @@ iniSortable :
             pathName : "replace_content"                # name of your route, twig will use it to generate url
             params   : { "id" : "id", "slug" : "slug" }   # it wil loop on item [entity] and key : [post.id]
           # frame : "bar"                                 # it will add on frame in advance mode !!
+            attributs :
+              #onclick: "Turbo.visit('{{ path(action.button.action.pathName) }}', { frame:'sortable-container' });"
+              data-controller : "crud"      # make sure you have install stimulus/turbo-ux
+              data-crud-endpoint-value      : "{{ path(action.button.action.pathName) }}"
+              data-crud-form-template-value : "{{ path(action.button.action.pathName) }}"
+              data-action        : "crud#showCreateForm"
+          
           icon   : "fa6-solid:plus"                         # use fontawesome 6 icon https://ux.symfony.com/icons
           color  : "success"                               # color for button
       - button :
