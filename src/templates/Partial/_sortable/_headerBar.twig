@@ -22,7 +22,7 @@
                         type="button"
                         class="btn btn-{{ action.button.color|default('primary') }} mx-1 d-flex fw-bold align-items-center"
 
-                    {% for key, value in action.button.action.attributs %}
+                    {% for key, value in action.button.action.attributs ?? {} %}
                         {{ key }}="{{ include(template_from_string(value))|raw }}"
                     {% endfor %}
                     >
