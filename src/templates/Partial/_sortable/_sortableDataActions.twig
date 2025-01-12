@@ -1,32 +1,46 @@
-{#
-TODO :
-    find a way to do this in twig check if we want to create CRUD on the fly
-    in Header @->crud
-#}
-
 <td>
     {% if actions is not empty %}
         <div class="d-flex justify-content-end">
             {% for action in actions.item %}
-
                 {% set query_params = {} %}
-                {% for key, value in action.button.action.params %}
+                {% for key, value in action.button.action.params ?? {} %}
                     {% set query_params = query_params|merge({(key): attribute(item, value)}) %}
                 {% endfor %}
 
-                <button
-                    type="button"
-                    class="btn btn-{{ action.button.color|default('primary') }} mx-1 d-flex fw-bold align-items-center"
-
-                {% for key, value in action.button.action.attributs ?? {} %}
-                    {{ key }}="{{ include(template_from_string(value))|raw }}"
-                {% endfor %}
-                >
+                {% if action.button.action.type is defined and action.button.action.type == 'a' %}
+                    <a href="{{ path(action.button.action.pathName, query_params) }}"
+                        class="btn btn-{{ action.button.color|default('primary') }} mx-1 d-flex fw-bold align-items-center"
+                        data-turbo-frame="sortable-container">
+                        {{ getTrans(action.button) }}
+                        {% if action.button.icon is defined %}
+                            <twig:ux:icon name="{{ action.button.icon }}" width="16" height="16" class="mx-2"/>
+                        {% endif %}
+                    </a>
+                {% elseif action.button.action.type is defined and action.button.action.type == 'form' %}
+                    <form method="post"
+                        action="{{ path('app_neox_car_product_delete', {'id': item.id}) }}"
+                        onsubmit="return confirm('{{ 'Are you sure?'|trans }}');">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ item.id) }}">
+                        <button type="submit"
+                            class="btn btn-{{ action.button.color|default('danger') }} mx-1 d-flex fw-bold align-items-center">
+                            {{ getTrans(action.button) }}
+                            {% if action.button.icon is defined %}
+                                <twig:ux:icon name="{{ action.button.icon }}" width="16" height="16" class="mx-2"/>
+                            {% endif %}
+                        </button>
+                    </form>
+                {% else %}
+                    <button type="button"
+                        class="btn btn-{{ action.button.color|default('primary') }} mx-1 d-flex fw-bold align-items-center"
+                    {% for key, value in action.button.action.attributs ?? {} %}
+                        {{ key }}="{{ include(template_from_string(value))|raw }}"
+                    {% endfor %}>
                     {{ getTrans(action.button) }}
                     {% if action.button.icon is defined %}
                         <twig:ux:icon name="{{ action.button.icon }}" width="16" height="16" class="mx-2"/>
                     {% endif %}
-                </button>
+                    </button>
+                {% endif %}
             {% endfor %}
         </div>
     {% endif %}

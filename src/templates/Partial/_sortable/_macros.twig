@@ -1,4 +1,4 @@
-{% macro render_value(value, type, header) %}
+{% macro render_value(value, type, header, option =null) %}
 
     {% if type == 'DateTime' or type == 'DateTimeImmutable' %}
         {% set format = header.format| default('Y-m-d H:i') %}
@@ -25,6 +25,9 @@
 
     {% elseif type == 'bool' %}
         {{ value ? 'true' : 'false' }}
+
+    {% elseif type == 'barcode' %}
+        <img src="data:image/png;base64,{{ value | getBarcode }}" alt="Code-barres-{{ value }}">
 
     {% elseif value is empty %}
         <em>nc</em>

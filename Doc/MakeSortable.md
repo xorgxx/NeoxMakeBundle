@@ -88,6 +88,7 @@ iniSortable :
       - button : # Optional : can use or not
           label  : "Add"                                   # name of your translation [messages].form.view.label = message are domain use by default to translate
           action : # Optional : custom action !!! you can use any path CRUD or what ever you want
+            type: button # form | a | button if you need a button you can use it like this. type: a for <a> tag or type: form for form tag
             pathName : "replace_content"                # name of your route, twig will use it to generate url
             params   : { "id" : "id", "slug" : "slug" }   # it wil loop on item [entity] and key : [post.id]
           # frame : "bar"                                 # it will add on frame in advance mode !!
@@ -103,15 +104,22 @@ iniSortable :
       - button :
           label  : "messages.form.view.label"
           action :
+            type: a # form | a | button
             voter    : [ "ROLE_ADMIN", "ROLE_OWNER" ]
             pathName : "replace_content"
             params   : { }
+            attributs :
+              href   : "{{ path(action.button.action.pathName) }}"
+              class  : "btn btn-primary" # Exemple de classe Bootstrap
+              target : "_blank" # Peut être modifié selon vos besoins (_blank, etc.)
+                      
           icon   : "fa6-solid:eye"
           color  : "warning"
     item   :
       - button :
           label  : "messages.form.view.label"
           action : # custom action !!! you can use any path CRUD or what ever you want
+            type: button # form | a | button
             voter    : [ "ROLE_ADMIN", "ROLE_OWNER" ]
             pathName : "replace_content"
             params   : { "id" : "id", "slug" : "slug" }
@@ -121,6 +129,7 @@ iniSortable :
       - button :
           label  : "messages.form.update.label"
           action :
+            type: button # form | a | button
             pathName : "replace_content"
             params   : { }
             frame    : "sortable-container"
@@ -129,6 +138,7 @@ iniSortable :
       - button :
           label  : "messages.form.delete.label"
           action :
+            type: button # form | a | button
             pathName : "replace_content"
             params   : { }
             frame    : "sortable-container"

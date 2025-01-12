@@ -2,8 +2,14 @@
 
 {% for header in headers %}
     <td>
+
+        {% set option   = "" %}
         {% set value    = attribute(item, header.key) %}
         {% set type     = getPropertyType(item, header.key) %}
+        {% if header.custom is defined and header.custom %}
+            {% set type   = header.custom.type %}
+            {% set option   = header.custom.option %}
+        {% endif %}
 
         {% if  header.key == "loop" %}
             {{ loop.parent.loop.index }}
@@ -14,9 +20,10 @@
                 <twig:ux:icon name="fa6-solid:thumbtack-slash" width="16" height="16" color="red"  class="mx-2"/>
             {% endif %}
         {% else %}
+
             {# it will encapsulate in <td> </td> #}
 
-            {{ macros.render_value(value, type, header) }}
+            {{ macros.render_value(value, type, header, option) }}
 
         {% endif %}
     </td>
